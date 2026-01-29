@@ -86,6 +86,12 @@
             background-color: #2c3e50;
         }
         
+        .module-btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
         .test-content {
             display: none;
         }
@@ -100,37 +106,69 @@
             border-radius: 8px;
             margin: 25px 0;
             border-left: 4px solid #3498db;
-        }
-        
-        .c-test p {
             font-size: 1.1em;
             line-height: 1.8;
         }
         
+        .c-test p {
+            margin: 0;
+        }
+        
         .c-blank {
             display: inline-block;
-            width: 40px;
-            margin: 0 5px;
-            border-bottom: 2px solid #7f8c8d;
-            text-align: center;
+            position: relative;
+            margin: 0 2px;
+            vertical-align: bottom;
         }
         
         .c-blank input {
-            width: 100%;
             border: none;
             background: transparent;
             text-align: center;
             font-size: 1em;
             text-transform: lowercase;
             outline: none;
+            border-bottom: 2px solid #7f8c8d;
+            padding: 0 2px;
+            font-family: monospace;
+            letter-spacing: 1px;
         }
         
-        .c-blank.correct {
+        /* Dynamic width based on expected answer length */
+        .c-blank[data-answer-length="1"] input { width: 20px; }
+        .c-blank[data-answer-length="2"] input { width: 30px; }
+        .c-blank[data-answer-length="3"] input { width: 40px; }
+        .c-blank[data-answer-length="4"] input { width: 50px; }
+        .c-blank[data-answer-length="5"] input { width: 60px; }
+        .c-blank[data-answer-length="6"] input { width: 70px; }
+        .c-blank[data-answer-length="7"] input { width: 80px; }
+        .c-blank[data-answer-length="8"] input { width: 90px; }
+        .c-blank[data-answer-length="9"] input { width: 100px; }
+        
+        .c-blank.correct input {
             border-bottom-color: #27ae60;
+            color: #27ae60;
+            font-weight: bold;
         }
         
-        .c-blank.incorrect {
+        .c-blank.incorrect input {
             border-bottom-color: #e74c3c;
+            color: #e74c3c;
+        }
+        
+        .c-answer-hint {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            color: #7f8c8d;
+            white-space: nowrap;
+            display: none;
+        }
+        
+        .c-blank:hover .c-answer-hint {
+            display: block;
         }
         
         .question {
@@ -193,6 +231,71 @@
             line-height: 1.7;
         }
         
+        .writing-task {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border-left: 4px solid #e67e22;
+        }
+        
+        .sentence-build {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border: 1px solid #ddd;
+        }
+        
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #f1f8ff;
+            border-radius: 5px;
+            border: 1px dashed #3498db;
+        }
+        
+        .word-option {
+            padding: 8px 15px;
+            background-color: white;
+            border: 1px solid #3498db;
+            border-radius: 20px;
+            cursor: move;
+            user-select: none;
+            transition: all 0.2s;
+        }
+        
+        .word-option:hover {
+            background-color: #e8f4fc;
+            transform: translateY(-2px);
+        }
+        
+        .word-option.used {
+            opacity: 0.5;
+            text-decoration: line-through;
+            cursor: not-allowed;
+        }
+        
+        .sentence-area {
+            min-height: 60px;
+            padding: 15px;
+            background-color: white;
+            border: 2px dashed #95a5a6;
+            border-radius: 5px;
+            margin: 15px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .sentence-area .word-option {
+            margin: 2px;
+        }
+        
         .controls {
             display: flex;
             justify-content: space-between;
@@ -224,12 +327,12 @@
             background-color: #219653;
         }
         
-        .btn-next {
-            background-color: #9b59b6;
+        .btn-clear {
+            background-color: #e74c3c;
         }
         
-        .btn-next:hover {
-            background-color: #8e44ad;
+        .btn-clear:hover {
+            background-color: #c0392b;
         }
         
         .results {
@@ -301,6 +404,16 @@
                 flex-direction: column;
                 gap: 10px;
             }
+            
+            .c-blank[data-answer-length="1"] input { width: 18px; }
+            .c-blank[data-answer-length="2"] input { width: 25px; }
+            .c-blank[data-answer-length="3"] input { width: 35px; }
+            .c-blank[data-answer-length="4"] input { width: 45px; }
+            .c-blank[data-answer-length="5"] input { width: 55px; }
+            .c-blank[data-answer-length="6"] input { width: 65px; }
+            .c-blank[data-answer-length="7"] input { width: 75px; }
+            .c-blank[data-answer-length="8"] input { width: 85px; }
+            .c-blank[data-answer-length="9"] input { width: 95px; }
         }
     </style>
 </head>
@@ -329,26 +442,114 @@
                 <p><strong>Fill in the missing letters in the paragraph. (Questions 1–10)</strong></p>
                 <p>
                     The Great Wall of China is one of the most remarkable feats of ancient engineering. 
-                    Stret<span class="c-blank" data-answer="ching"><input type="text" maxlength="5"></span> 
-                    for thou<span class="c-blank" data-answer="sands"><input type="text" maxlength="5"></span> 
-                    of kil<span class="c-blank" data-answer="ometers"><input type="text" maxlength="7"></span>, 
-                    it wa<span class="c-blank" data-answer="s"><input type="text" maxlength="1"></span> 
-                    built ov<span class="c-blank" data-answer="er"><input type="text" maxlength="2"></span> 
-                    many cen<span class="c-blank" data-answer="turies"><input type="text" maxlength="6"></span> 
-                    to pro<span class="c-blank" data-answer="tect"><input type="text" maxlength="5"></span> 
-                    China fr<span class="c-blank" data-answer="om"><input type="text" maxlength="2"></span> 
-                    invasions fr<span class="c-blank" data-answer="om"><input type="text" maxlength="2"></span> 
-                    the north. De<span class="c-blank" data-answer="spite"><input type="text" maxlength="5"></span> 
-                    its im<span class="c-blank" data-answer="mense"><input type="text" maxlength="5"></span> 
-                    size, it wa<span class="c-blank" data-answer="s"><input type="text" maxlength="1"></span> 
-                    not a<span class="c-blank" data-answer="n"><input type="text" maxlength="1"></span> 
-                    unbre<span class="c-blank" data-answer="akable"><input type="text" maxlength="7"></span> 
-                    barrier bu<span class="c-blank" data-answer="t"><input type="text" maxlength="1"></span> 
-                    rather a sy<span class="c-blank" data-answer="stem"><input type="text" maxlength="4"></span> 
-                    of fortifications. To<span class="c-blank" data-answer="day"><input type="text" maxlength="3"></span>, 
-                    it i<span class="c-blank" data-answer="s"><input type="text" maxlength="1"></span> 
+                    Stret<span class="c-blank" data-answer="ching" data-answer-length="5"><input type="text" maxlength="5"></span> 
+                    for thou<span class="c-blank" data-answer="sands" data-answer-length="5"><input type="text" maxlength="5"></span> 
+                    of kil<span class="c-blank" data-answer="ometers" data-answer-length="7"><input type="text" maxlength="7"></span>, 
+                    it wa<span class="c-blank" data-answer="s" data-answer-length="1"><input type="text" maxlength="1"></span> 
+                    built ov<span class="c-blank" data-answer="er" data-answer-length="2"><input type="text" maxlength="2"></span> 
+                    many cen<span class="c-blank" data-answer="turies" data-answer-length="6"><input type="text" maxlength="6"></span> 
+                    to pro<span class="c-blank" data-answer="tect" data-answer-length="5"><input type="text" maxlength="5"></span> 
+                    China fr<span class="c-blank" data-answer="om" data-answer-length="2"><input type="text" maxlength="2"></span> 
+                    invasions fr<span class="c-blank" data-answer="om" data-answer-length="2"><input type="text" maxlength="2"></span> 
+                    the north. De<span class="c-blank" data-answer="spite" data-answer-length="5"><input type="text" maxlength="5"></span> 
+                    its im<span class="c-blank" data-answer="mense" data-answer-length="5"><input type="text" maxlength="5"></span> 
+                    size, it wa<span class="c-blank" data-answer="s" data-answer-length="1"><input type="text" maxlength="1"></span> 
+                    not a<span class="c-blank" data-answer="n" data-answer-length="1"><input type="text" maxlength="1"></span> 
+                    unbre<span class="c-blank" data-answer="akable" data-answer-length="7"><input type="text" maxlength="7"></span> 
+                    barrier bu<span class="c-blank" data-answer="t" data-answer-length="1"><input type="text" maxlength="1"></span> 
+                    rather a sy<span class="c-blank" data-answer="stem" data-answer-length="4"><input type="text" maxlength="4"></span> 
+                    of fortifications. To<span class="c-blank" data-answer="day" data-answer-length="3"><input type="text" maxlength="3"></span>, 
+                    it i<span class="c-blank" data-answer="s" data-answer-length="1"><input type="text" maxlength="1"></span> 
                     a UNESCO World Heritage Site and a popular tourist destination.
                 </p>
+            </div>
+            
+            <div class="writing-task">
+                <p><strong>Task 5: Build a Sentence (Questions 21-25)</strong></p>
+                <p>Rearrange the words to form a grammatical sentence.</p>
+                
+                <div class="sentence-build">
+                    <p><strong>21. I'm planning to go to the beach tomorrow.</strong></p>
+                    <div class="word-bank" id="word-bank-21">
+                        <div class="word-option" data-word="is">is</div>
+                        <div class="word-option" data-word="time">time</div>
+                        <div class="word-option" data-word="of">of</div>
+                        <div class="word-option" data-word="year">year</div>
+                        <div class="word-option" data-word="what">what</div>
+                        <div class="word-option" data-word="the">the</div>
+                        <div class="word-option" data-word="water">water</div>
+                        <div class="word-option" data-word="this">this</div>
+                        <div class="word-option" data-word="like">like</div>
+                        <div class="word-option" data-word="temperature">temperature</div>
+                    </div>
+                    <div class="sentence-area" id="sentence-area-21"></div>
+                    <button class="btn btn-clear" onclick="clearSentence(21)">Clear</button>
+                </div>
+                
+                <div class="sentence-build">
+                    <p><strong>22. I need to buy groceries today.</strong></p>
+                    <div class="word-bank" id="word-bank-22">
+                        <div class="word-option" data-word="list">list</div>
+                        <div class="word-option" data-word="do">do</div>
+                        <div class="word-option" data-word="a">a</div>
+                        <div class="word-option" data-word="have">have</div>
+                        <div class="word-option" data-word="shopping">shopping</div>
+                        <div class="word-option" data-word="you">you</div>
+                    </div>
+                    <div class="sentence-area" id="sentence-area-22"></div>
+                    <button class="btn btn-clear" onclick="clearSentence(22)">Clear</button>
+                </div>
+                
+                <div class="sentence-build">
+                    <p><strong>23. I'll be taking a cooking class this weekend.</strong></p>
+                    <div class="word-bank" id="word-bank-23">
+                        <div class="word-option" data-word="learn">learn</div>
+                        <div class="word-option" data-word="what">what</div>
+                        <div class="word-option" data-word="will">will</div>
+                        <div class="word-option" data-word="you">you</div>
+                        <div class="word-option" data-word="recipes">recipes</div>
+                    </div>
+                    <div class="sentence-area" id="sentence-area-23"></div>
+                    <button class="btn btn-clear" onclick="clearSentence(23)">Clear</button>
+                </div>
+                
+                <div class="sentence-build">
+                    <p><strong>24. What did Maria ask you about the book you're reading?</strong></p>
+                    <div class="word-bank" id="word-bank-24">
+                        <div class="word-option" data-word="She">She</div>
+                        <div class="word-option" data-word="she">she</div>
+                        <div class="word-option" data-word="wanted">wanted</div>
+                        <div class="word-option" data-word="a">a</div>
+                        <div class="word-option" data-word="copy">copy</div>
+                        <div class="word-option" data-word="buy">buy</div>
+                        <div class="word-option" data-word="to">to</div>
+                        <div class="word-option" data-word="know">know</div>
+                        <div class="word-option" data-word="could">could</div>
+                        <div class="word-option" data-word="where">where</div>
+                    </div>
+                    <div class="sentence-area" id="sentence-area-24"></div>
+                    <button class="btn btn-clear" onclick="clearSentence(24)">Clear</button>
+                </div>
+                
+                <div class="sentence-build">
+                    <p><strong>25. How did you prepare for the exam?</strong></p>
+                    <div class="word-bank" id="word-bank-25">
+                        <div class="word-option" data-word="I">I</div>
+                        <div class="word-option" data-word="used">used</div>
+                        <div class="word-option" data-word="by">by</div>
+                        <div class="word-option" data-word="the">the</div>
+                        <div class="word-option" data-word="professor">professor</div>
+                        <div class="word-option" data-word="that">that</div>
+                        <div class="word-option" data-word="the">the</div>
+                        <div class="word-option" data-word="study">study</div>
+                        <div class="word-option" data-word="guide">guide</div>
+                        <div class="word-option" data-word="was">was</div>
+                        <div class="word-option" data-word="provided">provided</div>
+                        <div class="word-option" data-word="it">it</div>
+                    </div>
+                    <div class="sentence-area" id="sentence-area-25"></div>
+                    <button class="btn btn-clear" onclick="clearSentence(25)">Clear</button>
+                </div>
             </div>
             
             <div class="reading-passage">
@@ -369,7 +570,7 @@
             </div>
             
             <div class="question mcq" data-correct="B">
-                <div class="question-text">11. What is the main purpose of this email?</div>
+                <div class="question-text">26. What is the main purpose of this email?</div>
                 <div class="options">
                     <div class="option" data-value="A">To announce a new library location</div>
                     <div class="option" data-value="B">To inform students of longer library hours</div>
@@ -379,108 +580,12 @@
             </div>
             
             <div class="question mcq" data-correct="B">
-                <div class="question-text">12. When will the extended hours end?</div>
+                <div class="question-text">27. When will the extended hours end?</div>
                 <div class="options">
                     <div class="option" data-value="A">March 20</div>
                     <div class="option" data-value="B">March 24</div>
                     <div class="option" data-value="C">March 25</div>
                     <div class="option" data-value="D">March 30</div>
-                </div>
-            </div>
-            
-            <div class="reading-passage">
-                <p><strong>Read a social media post.</strong></p>
-                <p><strong>Travel with Leo</strong><br>
-                Just got back from a weekend trip to the mountains! If you're looking for a peaceful escape, I highly recommend the Blue Ridge cabins. The cabins are fully equipped, cozy, and surrounded by stunning views. Waking up to the sound of birds and the sight of misty valleys is pure magic.</p>
-                
-                <p>Don't miss the nearby hiking trails—they range from easy walks to challenging climbs. The Sunset Peak trail is my favorite; the view from the top is absolutely worth the effort. Whether you're an avid hiker or just want to relax in nature, this place has something for everyone.</p>
-            </div>
-            
-            <div class="question mcq" data-correct="B">
-                <div class="question-text">13. What is the main purpose of this post?</div>
-                <div class="options">
-                    <div class="option" data-value="A">To compare different vacation spots</div>
-                    <div class="option" data-value="B">To recommend a travel destination</div>
-                    <div class="option" data-value="C">To warn about difficult hiking trails</div>
-                    <div class="option" data-value="D">To review outdoor equipment</div>
-                </div>
-            </div>
-            
-            <div class="question mcq" data-correct="C">
-                <div class="question-text">14. What does the author say about the Sunset Peak trail?</div>
-                <div class="options">
-                    <div class="option" data-value="A">It is suitable only for experienced hikers.</div>
-                    <div class="option" data-value="B">The view from the top is disappointing.</div>
-                    <div class="option" data-value="C">It is his favorite because of the view.</div>
-                    <div class="option" data-value="D">It is the easiest trail in the area.</div>
-                </div>
-            </div>
-            
-            <div class="question mcq" data-correct="B">
-                <div class="question-text">15. Who would most enjoy visiting the Blue Ridge cabins according to the post?</div>
-                <div class="options">
-                    <div class="option" data-value="A">People who prefer city vacations</div>
-                    <div class="option" data-value="B">Those looking for a peaceful nature retreat</div>
-                    <div class="option" data-value="C">Visitors interested in historical sites</div>
-                    <div class="option" data-value="D">Travelers who enjoy nightlife</div>
-                </div>
-            </div>
-            
-            <div class="reading-passage">
-                <p><strong>Read an academic passage.</strong></p>
-                <h3>The History of the Printing Press</h3>
-                <p>The invention of the printing press by Johannes Gutenberg in the mid-15th century revolutionized communication and education in Europe. Before the printing press, books were copied by hand, making them rare and expensive. Gutenberg's press used movable type, which allowed for the mass production of texts. This innovation dramatically reduced the cost of books and made them accessible to a broader audience.</p>
-                
-                <p>The printing press played a crucial role in the spread of new ideas during the Renaissance and the Reformation. It enabled the rapid dissemination of scientific discoveries, religious texts, and political writings. Some historians argue that the printing press was one of the key factors that led to the rise of modern society by promoting literacy and the exchange of knowledge.</p>
-            </div>
-            
-            <div class="question mcq" data-correct="C">
-                <div class="question-text">16. What is the passage mainly about?</div>
-                <div class="options">
-                    <div class="option" data-value="A">The life of Johannes Gutenberg</div>
-                    <div class="option" data-value="B">How books were made before the printing press</div>
-                    <div class="option" data-value="C">The impact of the printing press on society</div>
-                    <div class="option" data-value="D">The cost of books in the 15th century</div>
-                </div>
-            </div>
-            
-            <div class="question mcq" data-correct="B">
-                <div class="question-text">17. The word "dissemination" in paragraph 2 is closest in meaning to</div>
-                <div class="options">
-                    <div class="option" data-value="A">creation</div>
-                    <div class="option" data-value="B">spread</div>
-                    <div class="option" data-value="C">criticism</div>
-                    <div class="option" data-value="D">protection</div>
-                </div>
-            </div>
-            
-            <div class="question mcq" data-correct="C">
-                <div class="question-text">18. According to the passage, what was one effect of the printing press?</div>
-                <div class="options">
-                    <div class="option" data-value="A">It made books more expensive.</div>
-                    <div class="option" data-value="B">It slowed down scientific progress.</div>
-                    <div class="option" data-value="C">It increased the availability of books.</div>
-                    <div class="option" data-value="D">It reduced the need for writing by hand.</div>
-                </div>
-            </div>
-            
-            <div class="question mcq" data-correct="B">
-                <div class="question-text">19. Why does the author mention the Renaissance and the Reformation?</div>
-                <div class="options">
-                    <div class="option" data-value="A">To contrast two historical periods</div>
-                    <div class="option" data-value="B">To give examples of movements influenced by the printing press</div>
-                    <div class="option" data-value="C">To explain why the printing press was invented</div>
-                    <div class="option" data-value="D">To criticize the role of religion in history</div>
-                </div>
-            </div>
-            
-            <div class="question mcq" data-correct="D">
-                <div class="question-text">20. What can be inferred about books before the printing press?</div>
-                <div class="options">
-                    <div class="option" data-value="A">They were widely available.</div>
-                    <div class="option" data-value="B">They were mostly religious texts.</div>
-                    <div class="option" data-value="C">They were affordable for most people.</div>
-                    <div class="option" data-value="D">They were produced slowly and in small numbers.</div>
                 </div>
             </div>
             
@@ -497,29 +602,74 @@
                 <p><strong>Fill in the missing letters in the paragraph. (Questions 1–10)</strong></p>
                 <p>
                     Climate change refers to significant changes in global temperatures and weather pat
-                    <span class="c-blank" data-answer="terns"><input type="text" maxlength="6"></span> 
+                    <span class="c-blank" data-answer="terns" data-answer-length="6"><input type="text" maxlength="6"></span> 
                     over exte
-                    <span class="c-blank" data-answer="nded"><input type="text" maxlength="5"></span> 
+                    <span class="c-blank" data-answer="nded" data-answer-length="5"><input type="text" maxlength="5"></span> 
                     periods. Sc
-                    <span class="c-blank" data-answer="ientists"><input type="text" maxlength="8"></span> 
+                    <span class="c-blank" data-answer="ientists" data-answer-length="8"><input type="text" maxlength="8"></span> 
                     agree that human ac
-                    <span class="c-blank" data-answer="tivities"><input type="text" maxlength="7"></span>, 
+                    <span class="c-blank" data-answer="tivities" data-answer-length="7"><input type="text" maxlength="7"></span>, 
                     such as burning fo
-                    <span class="c-blank" data-answer="ssil"><input type="text" maxlength="4"></span> 
+                    <span class="c-blank" data-answer="ssil" data-answer-length="4"><input type="text" maxlength="4"></span> 
                     fuels and defor
-                    <span class="c-blank" data-answer="estation"><input type="text" maxlength="9"></span>, 
+                    <span class="c-blank" data-answer="estation" data-answer-length="9"><input type="text" maxlength="9"></span>, 
                     are major contributors. Th
-                    <span class="c-blank" data-answer="ese"><input type="text" maxlength="4"></span> 
+                    <span class="c-blank" data-answer="ese" data-answer-length="4"><input type="text" maxlength="4"></span> 
                     activities rel
-                    <span class="c-blank" data-answer="ease"><input type="text" maxlength="5"></span> 
+                    <span class="c-blank" data-answer="ease" data-answer-length="5"><input type="text" maxlength="5"></span> 
                     greenhouse gases, wh
-                    <span class="c-blank" data-answer="ich"><input type="text" maxlength="4"></span> 
+                    <span class="c-blank" data-answer="ich" data-answer-length="4"><input type="text" maxlength="4"></span> 
                     trap heat in the atmosphere. Th
-                    <span class="c-blank" data-answer="is"><input type="text" maxlength="2"></span> 
+                    <span class="c-blank" data-answer="is" data-answer-length="2"><input type="text" maxlength="2"></span> 
                     leads to global warming, melting ice caps, and more extreme wea
-                    <span class="c-blank" data-answer="ther"><input type="text" maxlength="5"></span> 
+                    <span class="c-blank" data-answer="ther" data-answer-length="5"><input type="text" maxlength="5"></span> 
                     events.
                 </p>
+            </div>
+            
+            <div class="writing-task">
+                <p><strong>Task 5: Build a Sentence (Questions 21-25)</strong></p>
+                <p>Rearrange the words to form a grammatical sentence.</p>
+                
+                <div class="sentence-build">
+                    <p><strong>21. The tour guides were fantastic.</strong></p>
+                    <div class="word-bank" id="word-bank-26">
+                        <div class="word-option" data-word="who">who</div>
+                        <div class="word-option" data-word="showed">showed</div>
+                        <div class="word-option" data-word="us">us</div>
+                        <div class="word-option" data-word="around">around</div>
+                        <div class="word-option" data-word="the">the</div>
+                        <div class="word-option" data-word="old">old</div>
+                        <div class="word-option" data-word="city">city</div>
+                        <div class="word-option" data-word="The">The</div>
+                        <div class="word-option" data-word="tour">tour</div>
+                        <div class="word-option" data-word="guides">guides</div>
+                        <div class="word-option" data-word="were">were</div>
+                        <div class="word-option" data-word="fantastic">fantastic</div>
+                    </div>
+                    <div class="sentence-area" id="sentence-area-26"></div>
+                    <button class="btn btn-clear" onclick="clearSentence(26)">Clear</button>
+                </div>
+                
+                <div class="sentence-build">
+                    <p><strong>22. Do you know about her department move?</strong></p>
+                    <div class="word-bank" id="word-bank-27">
+                        <div class="word-option" data-word="Do">Do</div>
+                        <div class="word-option" data-word="you">you</div>
+                        <div class="word-option" data-word="know">know</div>
+                        <div class="word-option" data-word="if">if</div>
+                        <div class="word-option" data-word="she">she</div>
+                        <div class="word-option" data-word="will">will</div>
+                        <div class="word-option" data-word="be">be</div>
+                        <div class="word-option" data-word="moving">moving</div>
+                        <div class="word-option" data-word="to">to</div>
+                        <div class="word-option" data-word="a">a</div>
+                        <div class="word-option" data-word="different">different</div>
+                        <div class="word-option" data-word="department">department</div>
+                    </div>
+                    <div class="sentence-area" id="sentence-area-27"></div>
+                    <button class="btn btn-clear" onclick="clearSentence(27)">Clear</button>
+                </div>
             </div>
             
             <div class="reading-passage">
@@ -535,7 +685,7 @@
             </div>
             
             <div class="question mcq" data-correct="B">
-                <div class="question-text">11. What is the main purpose of this memo?</div>
+                <div class="question-text">28. What is the main purpose of this memo?</div>
                 <div class="options">
                     <div class="option" data-value="A">To announce permanent remote work</div>
                     <div class="option" data-value="B">To introduce a new hybrid work schedule</div>
@@ -545,108 +695,12 @@
             </div>
             
             <div class="question mcq" data-correct="B">
-                <div class="question-text">12. On which days are employees required to be in the office?</div>
+                <div class="question-text">29. On which days are employees required to be in the office?</div>
                 <div class="options">
                     <div class="option" data-value="A">Mondays and Wednesdays</div>
                     <div class="option" data-value="B">Tuesdays and Thursdays</div>
                     <div class="option" data-value="C">Fridays only</div>
                     <div class="option" data-value="D">Every day</div>
-                </div>
-            </div>
-            
-            <div class="reading-passage">
-                <p><strong>Read a product review.</strong></p>
-                <p><strong>Eco-Friendly Water Bottle Review</strong><br>
-                I recently purchased the "AquaPure" stainless steel water bottle, and I'm very impressed. It keeps drinks cold for up to 24 hours and hot for 12 hours—perfect for long hikes or workdays. The bottle is also lightweight and fits in most car cup holders.</p>
-                
-                <p>What I love most is its eco-friendly design. It's made from recycled materials and is completely BPA-free. Plus, for every bottle sold, the company donates to clean water projects. Highly recommend for anyone looking to reduce plastic waste!</p>
-            </div>
-            
-            <div class="question mcq" data-correct="B">
-                <div class="question-text">13. What is the main purpose of this review?</div>
-                <div class="options">
-                    <div class="option" data-value="A">To criticize plastic water bottles</div>
-                    <div class="option" data-value="B">To promote an eco-friendly product</div>
-                    <div class="option" data-value="C">To compare different bottle materials</div>
-                    <div class="option" data-value="D">To discuss water conservation projects</div>
-                </div>
-            </div>
-            
-            <div class="question mcq" data-correct="B">
-                <div class="question-text">14. According to the review, what is one benefit of the AquaPure bottle?</div>
-                <div class="options">
-                    <div class="option" data-value="A">It is very cheap.</div>
-                    <div class="option" data-value="B">It is made from recycled materials.</div>
-                    <div class="option" data-value="C">It comes in many colors.</div>
-                    <div class="option" data-value="D">It is unbreakable.</div>
-                </div>
-            </div>
-            
-            <div class="question mcq" data-correct="A">
-                <div class="question-text">15. Why might someone buy this bottle based on the review?</div>
-                <div class="options">
-                    <div class="option" data-value="A">To support clean water projects</div>
-                    <div class="option" data-value="B">Because it is the lightest bottle available</div>
-                    <div class="option" data-value="C">To get a free gift with purchase</div>
-                    <div class="option" data-value="D">Because it is recommended by celebrities</div>
-                </div>
-            </div>
-            
-            <div class="reading-passage">
-                <p><strong>Read an academic passage.</strong></p>
-                <h3>The Benefits of Bilingualism</h3>
-                <p>Research in cognitive science has shown that being bilingual—speaking two languages fluently—offers numerous mental advantages. Bilingual individuals often demonstrate enhanced executive function, which includes skills such as problem-solving, multitasking, and focusing attention. These benefits arise because managing two languages requires constant mental flexibility and inhibition of one language while using the other.</p>
-                
-                <p>Moreover, bilingualism has been linked to delayed onset of age-related cognitive decline and diseases such as Alzheimer's. Studies suggest that the mental exercise involved in switching between languages strengthens the brain's resilience. Additionally, bilingualism provides social and cultural benefits, enabling individuals to connect with diverse communities and access multiple perspectives.</p>
-            </div>
-            
-            <div class="question mcq" data-correct="B">
-                <div class="question-text">16. Which of the following best states the main idea of the passage?</div>
-                <div class="options">
-                    <div class="option" data-value="A">Learning a second language is very difficult.</div>
-                    <div class="option" data-value="B">Bilingualism improves cognitive and social abilities.</div>
-                    <div class="option" data-value="C">Monolingual people have weaker memories.</div>
-                    <div class="option" data-value="D">Children learn languages faster than adults.</div>
-                </div>
-            </div>
-            
-            <div class="question mcq" data-correct="B">
-                <div class="question-text">17. According to the passage, what is "executive function"?</div>
-                <div class="options">
-                    <div class="option" data-value="A">The ability to speak two languages</div>
-                    <div class="option" data-value="B">Skills like problem-solving and multitasking</div>
-                    <div class="option" data-value="C">Memory recall in older adults</div>
-                    <div class="option" data-value="D">Social communication skills</div>
-                </div>
-            </div>
-            
-            <div class="question mcq" data-correct="A">
-                <div class="question-text">18. Why does the author mention Alzheimer's disease?</div>
-                <div class="options">
-                    <div class="option" data-value="A">To show that bilingualism can delay cognitive decline</div>
-                    <div class="option" data-value="B">To argue that language learning prevents all brain diseases</div>
-                    <div class="option" data-value="C">To criticize medical research on aging</div>
-                    <div class="option" data-value="D">To compare bilingual and monolingual patients</div>
-                </div>
-            </div>
-            
-            <div class="question mcq" data-correct="C">
-                <div class="question-text">19. The word "resilience" in paragraph 2 is closest in meaning to</div>
-                <div class="options">
-                    <div class="option" data-value="A">weakness</div>
-                    <div class="option" data-value="B">recovery</div>
-                    <div class="option" data-value="C">resistance</div>
-                    <div class="option" data-value="D">speed</div>
-                </div>
-            </div>
-            
-            <div class="question mcq" data-correct="B">
-                <div class="question-text">20. What can be inferred about bilingual individuals?</div>
-                <div class="options">
-                    <div class="option" data-value="A">They are always better at math.</div>
-                    <div class="option" data-value="B">They may have stronger mental flexibility.</div>
-                    <div class="option" data-value="C">They avoid social interactions.</div>
-                    <div class="option" data-value="D">They prefer to use only one language daily.</div>
                 </div>
             </div>
             
@@ -658,7 +712,7 @@
         <!-- RESULTS SECTION -->
         <div class="results" id="results">
             <h2>Test Results</h2>
-            <div class="score-display" id="final-score">Score: 0/40</div>
+            <div class="score-display" id="final-score">Score: 0/35</div>
             
             <div class="score-breakdown" id="score-breakdown">
                 <!-- Will be filled by JavaScript -->
@@ -686,6 +740,17 @@
         let module1Submitted = false;
         let module2Submitted = false;
         
+        // Sentence answers
+        const sentenceAnswers = {
+            21: "What is the water temperature like this time of year?",
+            22: "Do you have a shopping list?",
+            23: "What recipes will you learn?",
+            24: "She wanted to know where she could buy a copy.",
+            25: "I used the study guide that was provided by the professor it",
+            26: "The tour guides who showed us around the old city were fantastic.",
+            27: "Do you know if she will be moving to a different department?"
+        };
+        
         // DOM Elements
         const timerElement = document.getElementById('time');
         const module1Btn = document.getElementById('btn-module1');
@@ -704,6 +769,7 @@
         function initTest() {
             startTimer();
             setupEventListeners();
+            setupSentenceBuilding();
         }
         
         // Timer functions
@@ -767,7 +833,6 @@
             if (module1Submitted) {
                 module1Btn.disabled = true;
                 module1Btn.style.opacity = '0.6';
-                module1Btn.style.cursor = 'not-allowed';
             }
             
             // Show warning if trying to go back to module 1 after starting module 2
@@ -776,6 +841,61 @@
                 switchModule(2);
                 return;
             }
+        }
+        
+        // Setup sentence building drag and drop
+        function setupSentenceBuilding() {
+            document.querySelectorAll('.word-option').forEach(word => {
+                word.addEventListener('click', function() {
+                    const wordBank = this.closest('.word-bank');
+                    const sentenceArea = document.getElementById(`sentence-area-${wordBank.id.split('-')[2]}`);
+                    
+                    if (!this.classList.contains('used')) {
+                        // Create a new word in sentence area
+                        const newWord = this.cloneNode(true);
+                        newWord.classList.add('used');
+                        newWord.addEventListener('click', function() {
+                            // Return word to bank
+                            this.remove();
+                            const originalWord = wordBank.querySelector(`.word-option[data-word="${this.dataset.word}"]`);
+                            if (originalWord) {
+                                originalWord.classList.remove('used');
+                            }
+                        });
+                        
+                        sentenceArea.appendChild(newWord);
+                        this.classList.add('used');
+                    }
+                });
+            });
+        }
+        
+        // Clear sentence
+        function clearSentence(questionNum) {
+            const sentenceArea = document.getElementById(`sentence-area-${questionNum}`);
+            const wordBank = document.getElementById(`word-bank-${questionNum}`);
+            
+            // Clear sentence area
+            sentenceArea.innerHTML = '';
+            
+            // Reset all words in bank
+            wordBank.querySelectorAll('.word-option').forEach(word => {
+                word.classList.remove('used');
+            });
+        }
+        
+        // Check sentence answer
+        function checkSentenceAnswer(questionNum) {
+            const sentenceArea = document.getElementById(`sentence-area-${questionNum}`);
+            const words = Array.from(sentenceArea.querySelectorAll('.word-option'))
+                .map(word => word.dataset.word)
+                .join(' ');
+            
+            const correctAnswer = sentenceAnswers[questionNum].toLowerCase().replace(/[.,?]/g, '');
+            const userAnswer = words.toLowerCase();
+            
+            // Simple check - could be improved with more sophisticated comparison
+            return userAnswer === correctAnswer;
         }
         
         // Setup event listeners
@@ -899,7 +1019,22 @@
                 }
             });
             
-            // Calculate multiple choice score (questions 11-20)
+            // Calculate sentence building score (questions 21-25 for module 1, 21-22 for module 2)
+            if (moduleNumber === 1) {
+                for (let i = 21; i <= 25; i++) {
+                    if (checkSentenceAnswer(i)) {
+                        score++;
+                    }
+                }
+            } else {
+                for (let i = 26; i <= 27; i++) {
+                    if (checkSentenceAnswer(i)) {
+                        score++;
+                    }
+                }
+            }
+            
+            // Calculate multiple choice score
             const questions = moduleElement.querySelectorAll('.question.mcq');
             questions.forEach((question, index) => {
                 const selectedValue = question.dataset.selected;
@@ -943,6 +1078,16 @@
             moduleElement.querySelectorAll('.option').forEach(option => {
                 option.style.pointerEvents = 'none';
             });
+            
+            // Disable sentence building
+            moduleElement.querySelectorAll('.word-option').forEach(word => {
+                word.style.pointerEvents = 'none';
+            });
+            
+            moduleElement.querySelectorAll('.btn-clear').forEach(btn => {
+                btn.disabled = true;
+                btn.style.opacity = '0.6';
+            });
         }
         
         // Show module results
@@ -953,44 +1098,49 @@
         // Show final results
         function showFinalResults() {
             const totalScore = module1Score + module2Score;
-            const percentage = (totalScore / 40) * 100;
+            const totalQuestions = 35; // 10 c-test + 5 sentence + 2 MCQ in each module
+            const percentage = (totalScore / totalQuestions) * 100;
             
             // Update final score
-            finalScoreElement.textContent = `Score: ${totalScore}/40 (${percentage.toFixed(1)}%)`;
+            finalScoreElement.textContent = `Score: ${totalScore}/${totalQuestions} (${percentage.toFixed(1)}%)`;
             
             // Update score breakdown
             scoreBreakdownElement.innerHTML = `
                 <div class="score-item">
                     <div>Module 1</div>
-                    <div class="${module1Score >= 15 ? 'correct-answer' : 'incorrect-answer'}">${module1Score}/20</div>
+                    <div class="${module1Score >= 10 ? 'correct-answer' : 'incorrect-answer'}">${module1Score}/17</div>
                 </div>
                 <div class="score-item">
                     <div>Module 2</div>
-                    <div class="${module2Score >= 15 ? 'correct-answer' : 'incorrect-answer'}">${module2Score}/20</div>
+                    <div class="${module2Score >= 10 ? 'correct-answer' : 'incorrect-answer'}">${module2Score}/18</div>
                 </div>
                 <div class="score-item">
-                    <div>C-Test (1-10 each module)</div>
-                    <div>${(module1Score + module2Score - 20)}/20</div>
+                    <div>C-Test (1-10 each)</div>
+                    <div>${(module1Score + module2Score - 10)}/20</div>
+                </div>
+                <div class="score-item">
+                    <div>Sentence Building</div>
+                    <div>7/7</div>
                 </div>
                 <div class="score-item">
                     <div>Reading Comprehension</div>
-                    <div>20/20</div>
+                    <div>4/8</div>
                 </div>
             `;
             
             // Provide feedback
             let feedback = '';
             if (percentage >= 85) {
-                feedback = '<strong>Excellent!</strong> You have a strong command of English reading comprehension.';
+                feedback = '<strong>Excellent!</strong> You have a strong command of English reading and grammar.';
             } else if (percentage >= 70) {
-                feedback = '<strong>Good job!</strong> Your reading skills are solid, but there\'s room for improvement.';
+                feedback = '<strong>Good job!</strong> Your English skills are solid, but there\'s room for improvement.';
             } else if (percentage >= 50) {
-                feedback = '<strong>Fair.</strong> You should focus more on vocabulary and reading practice.';
+                feedback = '<strong>Fair.</strong> You should focus more on vocabulary, grammar, and reading practice.';
             } else {
                 feedback = '<strong>Needs improvement.</strong> Consider practicing with simpler texts and building vocabulary.';
             }
             
-            feedback += '<br><br>Remember: TOEFL iBT Reading requires both vocabulary knowledge and the ability to understand main ideas, details, and inferences in academic texts.';
+            feedback += '<br><br>Remember: TOEFL tests both vocabulary knowledge and the ability to understand main ideas, details, and sentence structure in English.';
             
             feedbackElement.innerHTML = feedback;
             
@@ -1009,7 +1159,7 @@
             module1Submitted = false;
             module2Submitted = false;
             
-            // Clear all inputs
+            // Clear all C-test inputs
             document.querySelectorAll('.c-blank input').forEach(input => {
                 input.value = '';
                 input.disabled = false;
@@ -1025,13 +1175,27 @@
                 });
             });
             
+            // Clear sentence building
+            for (let i = 21; i <= 27; i++) {
+                clearSentence(i);
+                const wordBank = document.getElementById(`word-bank-${i}`);
+                if (wordBank) {
+                    wordBank.querySelectorAll('.word-option').forEach(word => {
+                        word.style.pointerEvents = 'auto';
+                    });
+                }
+                const clearBtn = document.querySelector(`button[onclick="clearSentence(${i})"]`);
+                if (clearBtn) {
+                    clearBtn.disabled = false;
+                    clearBtn.style.opacity = '1';
+                }
+            }
+            
             // Reset UI
             module1Btn.disabled = false;
             module1Btn.style.opacity = '1';
-            module1Btn.style.cursor = 'pointer';
             module2Btn.disabled = false;
             module2Btn.style.opacity = '1';
-            module2Btn.style.cursor = 'pointer';
             
             // Hide results
             resultsSection.classList.remove('active');
