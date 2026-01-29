@@ -1,8 +1,9 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/index.html b/index.html
-index 2efe43de7a91fec8475dbc423f59a18c1d4f1142..eb09a7f2c95692036de8babacf3b96394fb9bada 100644
+index 2efe43de7a91fec8475dbc423f59a18c1d4f1142..489d54bea6ca99c843bf04fc68b167cf15f14175 100644
 --- a/index.html
 +++ b/index.html
-@@ -1,191 +1,607 @@
+@@ -1,191 +1,603 @@
  <!doctype html>
  <html lang="en">
  <head>
@@ -187,17 +188,11 @@ index 2efe43de7a91fec8475dbc423f59a18c1d4f1142..eb09a7f2c95692036de8babacf3b9639
 +    passage: `Studies of attention suggest that multitasking reduces performance on complex tasks. When individuals divide attention between activities, cognitive resources are spread thin, resulting in slower processing and more errors. Although people often believe they can manage multiple tasks efficiently, research consistently shows declines in accuracy and comprehension.
 +
 +Experiments demonstrate that task-switching, rather than simultaneous processing, explains much of the performance loss. Each switch requires mental adjustment, which consumes time and effort. Consequently, sustained focus on a single task generally leads to better outcomes, particularly for tasks requiring reasoning or memory.`,
-     questions: [
--      { id: 11, text: "What is the main purpose of the notice?",
--        options: ["To promote a new platform","To announce temporary service unavailability","To explain platform features","To report system errors"],
--        answer: 1
++    questions: [
 +      { id:17, text:"What is the passage mainly about?",
 +        options:["Why people prefer multitasking","How multitasking affects performance","How memory improves with practice","Why reasoning tasks require time"],
 +        answer:1
-       },
--      { id: 12, text: "What are students advised to do?",
--        options: ["Contact instructors","Delay coursework","Download materials beforehand","Avoid using the platform permanently"],
--        answer: 2
++      },
 +      { id:18, text:"According to the passage, performance declines because",
 +        options:["tasks become simpler","cognitive resources are divided","people dislike switching tasks","memory increases too quickly"],
 +        answer:1
@@ -217,12 +212,11 @@ index 2efe43de7a91fec8475dbc423f59a18c1d4f1142..eb09a7f2c95692036de8babacf3b9639
 +      { id:22, text:"What strategy does the author imply is generally better for complex tasks?",
 +        options:["Sustained focus on one task","Frequent switching between tasks","Doing several tasks at once","Avoiding tasks that require memory"],
 +        answer:0
-       }
-     ]
-   }
--  // Add the remaining sections/questions up to 50...
- ];
- 
++      }
++    ]
++  }
++];
++
 +const module2_easy = [
 +  {
 +    title: "MODULE 2 (EASY) | Task 5: Complete the Words (Q23–Q32)",
@@ -246,7 +240,10 @@ index 2efe43de7a91fec8475dbc423f59a18c1d4f1142..eb09a7f2c95692036de8babacf3b9639
 +    passage: `Workshop Schedule
 +
 +Workshops run May 3–5. Attendance is optional but recommended. Participants should arrive 10 minutes early for check-in.`,
-+    questions: [
+     questions: [
+-      { id: 11, text: "What is the main purpose of the notice?",
+-        options: ["To promote a new platform","To announce temporary service unavailability","To explain platform features","To report system errors"],
+-        answer: 1
 +      { id:33, text:"What information does the schedule provide?",
 +        options:["Workshop topics","Workshop dates","Workshop grades","Workshop instructors"],
 +        answer:1
@@ -298,7 +295,10 @@ index 2efe43de7a91fec8475dbc423f59a18c1d4f1142..eb09a7f2c95692036de8babacf3b9639
 +      { id:41, text:"What can be inferred about dense cities?",
 +        options:["They have unlimited space","Land is limited","They avoid development projects","They cannot support parks"],
 +        answer:1
-+      },
+       },
+-      { id: 12, text: "What are students advised to do?",
+-        options: ["Contact instructors","Delay coursework","Download materials beforehand","Avoid using the platform permanently"],
+-        answer: 2
 +      { id:42, text:"Which is mentioned as a creative solution?",
 +        options:["Building taller offices","Rooftop gardens","Reducing public transportation","Closing neighborhood parks"],
 +        answer:1
@@ -318,11 +318,12 @@ index 2efe43de7a91fec8475dbc423f59a18c1d4f1142..eb09a7f2c95692036de8babacf3b9639
 +      { id:44, text:"What are students encouraged to do?",
 +        options:["Use only walk-in visits","Book routine appointments early online","Avoid the clinic next week","Call after arriving at the clinic"],
 +        answer:1
-+      }
-+    ]
-+  }
-+];
-+
+       }
+     ]
+   }
+-  // Add the remaining sections/questions up to 50...
+ ];
+ 
 +const module2_hard = [
 +  {
 +    title: "MODULE 2 (HARD) | Task 5: Complete the Words (Q23–Q32)",
@@ -541,16 +542,12 @@ index 2efe43de7a91fec8475dbc423f59a18c1d4f1142..eb09a7f2c95692036de8babacf3b9639
  function startTimer(){
    timerId = setInterval(() => {
      timeLeft--;
--    document.getElementById("timer").textContent = formatTime(timeLeft);
+     document.getElementById("timer").textContent = formatTime(timeLeft);
 -    if (timeLeft <= 0) {
 +    if (timeLeft <= 0){
-+      timeLeft = 0;
-+      document.getElementById("timer").textContent = formatTime(timeLeft);
        clearInterval(timerId);
        submitQuiz(true);
-+      return;
      }
-+    document.getElementById("timer").textContent = formatTime(timeLeft);
    }, 1000);
  }
  
@@ -624,7 +621,6 @@ index 2efe43de7a91fec8475dbc423f59a18c1d4f1142..eb09a7f2c95692036de8babacf3b9639
 +
 +function resetAll(){
 +  clearInterval(timerId);
-+  timerId = null;
 +  started = false;
 +  timeLeft = 30*60;
 +  document.getElementById("timer").textContent = formatTime(timeLeft);
@@ -678,3 +674,6 @@ index 2efe43de7a91fec8475dbc423f59a18c1d4f1142..eb09a7f2c95692036de8babacf3b9639
  
  </body>
  </html>
+ 
+EOF
+)
