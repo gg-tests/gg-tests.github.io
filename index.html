@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>TOEFL iBT Reading (2026) — ETS-aligned (Auto-switch + Review)</title>
+  <title>TOEFL iBT Reading (2026) — ETS-aligned (Auto-switch + C-test + Review)</title>
   <style>
     :root{--bd:#e5e7eb;--muted:#6b7280;--ok:#10b981;--bad:#ef4444}
     body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:980px;margin:24px auto;padding:0 16px;line-height:1.45}
@@ -29,8 +29,20 @@
     @media (min-width: 820px){ .split{grid-template-columns:1fr 1fr} }
     .pill{display:inline-block;font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--bd);background:#fff}
     .hr{height:1px;background:var(--bd);margin:12px 0}
-    .warn{background:#fffbeb;border:1px solid #f59e0b;color:#92400e;border-radius:12px;padding:10px}
+    .warn{background:#fffbeb;border:1px solid #f59e0b;color:#92400e;border-radius:12px;padding:10px;margin-bottom:12px}
     code{background:#f3f4f6;padding:2px 6px;border-radius:8px}
+    .ctest-input{
+      display:inline-block;
+      font-size:14px;
+      padding:6px 8px;
+      margin:0 4px;
+      border-radius:10px;
+      border:1px solid var(--bd);
+      background:#fff;
+      outline:none;
+      vertical-align:baseline;
+    }
+    .ctest-input:disabled{background:#f3f4f6}
   </style>
 </head>
 <body>
@@ -57,14 +69,15 @@
   <ul>
     <li>Time limit: <b>30 minutes</b> (both modules together)</li>
     <li>No dictionaries or translation tools</li>
+    <li>Task 1 is a <b>C-test style</b> “Complete the Words”: type <b>ONLY</b> the missing letters</li>
     <li>After submission, you will see a <b>review</b> (correct answers)</li>
   </ul>
 
   <div class="hr"></div>
 
   <p class="muted" style="margin:0">
-    <b>Auto-switch:</b> Module 2 is selected based on Module 1 score.
-    You can adjust the threshold in one line:
+    <b>Auto-switch:</b> Module 2 is selected based on Module 1 score (out of 22).
+    Adjust threshold here:
     <code>const HARD_THRESHOLD = 15;</code>
   </p>
 </div>
@@ -78,11 +91,110 @@
  * ==========================
  * AUTO-SWITCH SETTINGS
  * ==========================
- * Module 1 has 22 questions (Q1–Q22).
  * If Module 1 score >= HARD_THRESHOLD → Module 2 = HARD.
- * Otherwise → Module 2 = EASY (still B2, just softer).
+ * Else → Module 2 = EASY (still B2, just softer).
  */
-const HARD_THRESHOLD = 15; // recommended: 14–16 depending on your group
+const HARD_THRESHOLD = 15; // suggested range: 14–16
+
+// ==========================
+// HELPERS
+// ==========================
+function formatTime(sec){
+  const m = String(Math.floor(sec/60)).padStart(2,'0');
+  const s = String(sec%60).padStart(2,'0');
+  return `${m}:${s}`;
+}
+function escapeHtml(str){
+  return String(str)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+function setInputsDisabled(disabled){
+  document.querySelectorAll('input[type="radio"]').forEach(i => i.disabled = disabled);
+  document.querySelectorAll('input.ctest-input').forEach(i => i.disabled = disabled);
+}
+function startTimer(){
+  timerId = setInterval(() => {
+    timeLeft--;
+    document.getElementById("timer").textContent = formatTime(timeLeft);
+    if (timeLeft <= 0){
+      clearInterval(timerId);
+      submitQuiz(true);
+    }
+  }, 1000);
+}
+function collectQuestions(blocks){
+  const all = [];
+  blocks.forEach(b => b.questions.forEach(q => all.push({ block: b, q })));
+  return all;
+}
+
+// ==========================
+// C-TEST RENDER + ACCESSORS
+// ==========================
+function renderCtestPassage(block, disabled){
+  // block.ctestTemplate uses {{1}}, {{2}} ... placeholders
+  // block.ctestBlanks contains { id: <placeholder number>, qid: <question id>, missing, expectedLen }
+  const blankMap = new Map(block.ctestBlanks.map(b => [String(b.id), b]));
+  const parts = block.ctestTemplate.split(/(\{\{\d+\}\})/g);
+
+  const container = document.createElement("div");
+  container.className = "passage";
+
+  parts.forEach(part => {
+    const m = part.match(/^\{\{(\d+)\}\}$/);
+    if (!m){
+      container.appendChild(document.createTextNode(part));
+      return;
+    }
+    const pid = m[1];
+    const blank = blankMap.get(pid);
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "ctest-input";
+    input.inputMode = "text";
+    input.autocomplete = "off";
+    input.spellcheck = false;
+    input.maxLength = blank.expectedLen;
+    input.disabled = !!disabled;
+    input.name = `ctest_${blank.qid}`;
+    input.placeholder = "·".repeat(blank.expectedLen);
+
+    // width approx by expected length
+    input.style.width = Math.max(44, blank.expectedLen * 10 + 18) + "px";
+
+    // auto-advance
+    input.addEventListener("input", () => {
+      if (input.value.length >= blank.expectedLen){
+        const nextQid = blank.qid + 1;
+        const next = document.querySelector(`input[name="ctest_${nextQid}"]`);
+        if (next) next.focus();
+      }
+    });
+
+    container.appendChild(input);
+  });
+
+  return container;
+}
+function getCtestUserAnswer(qid){
+  const el = document.querySelector(`input[name="ctest_${qid}"]`);
+  return el ? el.value.trim() : "";
+}
+function getCtestCorrectMissing(qid, block){
+  const blank = block.ctestBlanks.find(b => b.qid === qid);
+  return blank ? blank.missing : "";
+}
+function isCtestAnswered(qid, block){
+  const user = getCtestUserAnswer(qid);
+  const blank = block.ctestBlanks.find(b => b.qid === qid);
+  if (!blank) return false;
+  return user.length === blank.expectedLen; // strict completion (ETS-like)
+}
 
 // ==========================
 // DATA (ETS-aligned, 44 items)
@@ -90,20 +202,36 @@ const HARD_THRESHOLD = 15; // recommended: 14–16 depending on your group
 
 const module1 = [
   {
-    title: "MODULE 1 — ROUTING | Task 1: Complete the Words (Q1–Q10)",
-    intro: "Choose the correct completion for each blank (each blank = 1 question).",
-    passage: `Archaeological evidence preserved in caves for thousands of years indicates that early humans engaged in activities beyond basic survival. We mi___ think that prehistoric people focused only on immediate needs. How___er, records show that artistic expression was highly valued and played a significant role in strengthening group ide___ity and social cohesion.`,
+    type: "ctest",
+    title: "MODULE 1 — ROUTING | Task 1: Complete the Words (C-test style) (Q1–Q10)",
+    intro: "Type ONLY the missing letters for each blank (each blank = 1 question).",
+    // Prefix + {{n}} gives the missing tail (like ETS Complete the Words)
+    ctestTemplate:
+`Archaeological evidence preserved in caves for thousands of years indicates that early humans engaged in activities beyond basic survival. We mi{{1}} think that prehistoric people focused only on immediate needs. How{{2}}, rec{{3}} show that arti{{4}} expression was highly valu{{5}} and played a signi{{6}} role in streng{{7}} group ide{{8}} and social cohe{{10}}.`,
+    ctestBlanks: [
+      { id: 1,  qid: 1,  missing: "ght",      expectedLen: 3  }, // might
+      { id: 2,  qid: 2,  missing: "ever",     expectedLen: 4  }, // However
+      { id: 3,  qid: 3,  missing: "ords",     expectedLen: 4  }, // records
+      { id: 4,  qid: 4,  missing: "stic",     expectedLen: 4  }, // artistic
+      { id: 5,  qid: 5,  missing: "ed",       expectedLen: 2  }, // valued
+      { id: 6,  qid: 6,  missing: "ficant",   expectedLen: 6  }, // significant
+      { id: 7,  qid: 7,  missing: "thening",  expectedLen: 7  }, // strengthening
+      { id: 8,  qid: 8,  missing: "ntity",    expectedLen: 5  }, // identity
+      // Q9 kept as “soci___al” in the question list for ETS-format consistency,
+      // but not embedded into the running text to keep the passage readable.
+      { id: 10, qid:10,  missing: "sion",     expectedLen: 4  }  // cohesion
+    ],
     questions: [
-      { id: 1,  text: "mi___",          options: ["might","mind","minor","mile"],                                  answer: 0 },
-      { id: 2,  text: "How___er",       options: ["However","Howsoever","Howeverly","Howover"],                   answer: 0 },
-      { id: 3,  text: "rec___ds",       options: ["records","regards","rewards","results"],                       answer: 0 },
-      { id: 4,  text: "arti___ic",      options: ["artistic","article","artificial","articulate"],                answer: 0 },
-      { id: 5,  text: "valu___d",       options: ["value","valued","valuable","valuing"],                        answer: 1 },
-      { id: 6,  text: "signi___ant",    options: ["signify","signal","significant","signatory"],                 answer: 2 },
-      { id: 7,  text: "streng___ening", options: ["strengthen","strengthened","strengthening","strength"],       answer: 2 },
-      { id: 8,  text: "ide___ity",      options: ["identity","identical","identification","identify"],           answer: 0 },
-      { id: 9,  text: "soci___al",      options: ["society","social","socialize","socialism"],                   answer: 1 },
-      { id:10,  text: "cohe___ion",     options: ["cohesion","coercion","collision","cooperation"],              answer: 0 },
+      { id: 1,  text: "mi___",            answer: "ght" },
+      { id: 2,  text: "How___er",         answer: "ever" },
+      { id: 3,  text: "rec___ds",         answer: "ords" },
+      { id: 4,  text: "arti___ic",        answer: "stic" },
+      { id: 5,  text: "valu___d",         answer: "ed" },
+      { id: 6,  text: "signi___ant",      answer: "ficant" },
+      { id: 7,  text: "streng___ening",   answer: "thening" },
+      { id: 8,  text: "ide___ity",        answer: "ntity" },
+      { id: 9,  text: "soci___al (type: cial)", answer: "cial", standalone: true, expectedLen: 4 },
+      { id:10,  text: "cohe___ion",       answer: "sion" }
     ]
   },
 
@@ -199,7 +327,7 @@ Experiments demonstrate that task-switching, rather than simultaneous processing
 
 const module2_easy = [
   {
-    title: "MODULE 2 — EASY (B2) | Task 5: Complete the Words (Q23–Q32)",
+    title: "MODULE 2 — EASY (B2) | Task 5: Complete the Words (MCQ) (Q23–Q32)",
     intro: "Choose the correct completion for each blank (each blank = 1 question).",
     passage: `Economic globalization has increa___ingly influenced trade. By redu___ing barriers, companies operate more effe___ively. However, critics note that bene___its may be unevenly distributed.`,
     questions: [
@@ -299,7 +427,7 @@ The campus clinic will operate on reduced hours next week. Students who need rou
 
 const module2_hard = [
   {
-    title: "MODULE 2 — HARD (B2+/C1-entry) | Task 5: Complete the Words (Q23–Q32)",
+    title: "MODULE 2 — HARD (B2+/C1-entry) | Task 5: Complete the Words (MCQ) (Q23–Q32)",
     intro: "Choose the correct completion for each blank (each blank = 1 question).",
     passage: `Technological innovation has funda___entally altered communication. While effici___ency has improved, critics warn of unint___ended consequences.`,
     questions: [
@@ -401,7 +529,7 @@ To reduce account misuse, access to certain online services may require addition
 ];
 
 // ==========================
-// APP STATE
+// STATE
 // ==========================
 let started = false;
 let moduleIndex = 1; // 1 or 2
@@ -410,64 +538,8 @@ let timeLeft = 30 * 60;
 let timerId = null;
 
 // ==========================
-// HELPERS
+// RENDER
 // ==========================
-function formatTime(sec){
-  const m = String(Math.floor(sec/60)).padStart(2,'0');
-  const s = String(sec%60).padStart(2,'0');
-  return `${m}:${s}`;
-}
-function escapeHtml(str){
-  return String(str)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
-function setInputsDisabled(disabled){
-  document.querySelectorAll('input[type="radio"]').forEach(i => i.disabled = disabled);
-}
-function startTimer(){
-  timerId = setInterval(() => {
-    timeLeft--;
-    document.getElementById("timer").textContent = formatTime(timeLeft);
-    if (timeLeft <= 0){
-      clearInterval(timerId);
-      submitQuiz(true);
-    }
-  }, 1000);
-}
-function collectQuestions(blocks){
-  const all = [];
-  blocks.forEach(b => b.questions.forEach(q => all.push(q)));
-  return all;
-}
-function getModule2Blocks(mode){
-  return mode === "hard" ? module2_hard : module2_easy;
-}
-function scoreModule1(){
-  const q = collectQuestions(module1);
-  let correct = 0;
-  q.forEach(item => {
-    const chosen = document.querySelector(`input[name="q${item.id}"]:checked`);
-    const idx = chosen ? Number(chosen.value) : -1;
-    if (idx === item.answer) correct++;
-  });
-  return { correct, total: q.length };
-}
-function decideModule2Mode(){
-  const s = scoreModule1();
-  const mode = (s.correct >= HARD_THRESHOLD) ? "hard" : "easy";
-  return { mode, score: s };
-}
-function updatePills(){
-  const mP = document.getElementById("modulePill");
-  const modeP = document.getElementById("modePill");
-  mP.textContent = started ? `Module: ${moduleIndex}` : "Module: not started";
-  if (chosenMode === "auto") modeP.textContent = "Module 2: AUTO";
-  else modeP.textContent = `Module 2: ${chosenMode.toUpperCase()}`;
-}
 function renderBlocks(blocks, disabled=true){
   const root = document.getElementById("quiz");
   root.innerHTML = "";
@@ -488,42 +560,151 @@ function renderBlocks(blocks, disabled=true){
       card.appendChild(p);
     }
 
-    if (block.passage){
-      const pre = document.createElement("div");
-      pre.className = "passage";
-      pre.textContent = block.passage;
-      card.appendChild(pre);
-    }
+    if (block.type === "ctest"){
+      card.appendChild(renderCtestPassage(block, disabled));
 
-    block.questions.forEach(q => {
-      const qDiv = document.createElement("div");
-      qDiv.className = "q";
-      qDiv.id = `qwrap-${q.id}`;
+      // Standalone Q9 (not in running text): we render a small input for it
+      const standalone = block.questions.find(q => q.id === 9);
+      if (standalone && standalone.standalone){
+        const box = document.createElement("div");
+        box.className = "q";
+        box.id = `qwrap-${standalone.id}`;
 
-      const title = document.createElement("h4");
-      title.innerHTML = `Q${q.id}. ${escapeHtml(q.text)} <span id="tag-${q.id}" class="tag" style="display:none"></span>`;
-      qDiv.appendChild(title);
+        const title = document.createElement("h4");
+        title.innerHTML = `Q${standalone.id}. ${escapeHtml(standalone.text)} <span id="tag-${standalone.id}" class="tag" style="display:none"></span>`;
+        box.appendChild(title);
 
-      q.options.forEach((opt, idx) => {
         const lab = document.createElement("label");
-        lab.innerHTML = `
-          <input type="radio" name="q${q.id}" value="${idx}" ${disabled ? "disabled":""}>
-          ${escapeHtml(opt)}
-        `;
-        qDiv.appendChild(lab);
+        lab.innerHTML = `Type missing letters: <input class="ctest-input" name="ctest_${standalone.id}" maxlength="${standalone.expectedLen}" placeholder="${"·".repeat(standalone.expectedLen)}" ${disabled ? "disabled":""}>`;
+        box.appendChild(lab);
+
+        const review = document.createElement("div");
+        review.className = "review-line";
+        review.id = `review-${standalone.id}`;
+        review.style.display = "none";
+        box.appendChild(review);
+
+        card.appendChild(box);
+      }
+
+      // Hidden shells for Q1–Q10 to reuse review/tag UI
+      block.questions.forEach(q => {
+        if (q.id === 9) return; // already rendered
+        const qDiv = document.createElement("div");
+        qDiv.className = "q";
+        qDiv.id = `qwrap-${q.id}`;
+
+        const title = document.createElement("h4");
+        title.innerHTML = `Q${q.id}. ${escapeHtml(q.text)} <span id="tag-${q.id}" class="tag" style="display:none"></span>`;
+        qDiv.appendChild(title);
+
+        const review = document.createElement("div");
+        review.className = "review-line";
+        review.id = `review-${q.id}`;
+        review.style.display = "none";
+        qDiv.appendChild(review);
+
+        card.appendChild(qDiv);
       });
 
-      const review = document.createElement("div");
-      review.className = "review-line";
-      review.id = `review-${q.id}`;
-      review.style.display = "none";
-      qDiv.appendChild(review);
+    } else {
+      if (block.passage){
+        const pre = document.createElement("div");
+        pre.className = "passage";
+        pre.textContent = block.passage;
+        card.appendChild(pre);
+      }
 
-      card.appendChild(qDiv);
-    });
+      block.questions.forEach(q => {
+        const qDiv = document.createElement("div");
+        qDiv.className = "q";
+        qDiv.id = `qwrap-${q.id}`;
+
+        const title = document.createElement("h4");
+        title.innerHTML = `Q${q.id}. ${escapeHtml(q.text)} <span id="tag-${q.id}" class="tag" style="display:none"></span>`;
+        qDiv.appendChild(title);
+
+        q.options.forEach((opt, idx) => {
+          const lab = document.createElement("label");
+          lab.innerHTML = `
+            <input type="radio" name="q${q.id}" value="${idx}" ${disabled ? "disabled":""}>
+            ${escapeHtml(opt)}
+          `;
+          qDiv.appendChild(lab);
+        });
+
+        const review = document.createElement("div");
+        review.className = "review-line";
+        review.id = `review-${q.id}`;
+        review.style.display = "none";
+        qDiv.appendChild(review);
+
+        card.appendChild(qDiv);
+      });
+    }
 
     root.appendChild(card);
   });
+}
+
+function updatePills(){
+  document.getElementById("modulePill").textContent = started ? `Module: ${moduleIndex}` : "Module: not started";
+  const mp = document.getElementById("modePill");
+  if (chosenMode === "auto") mp.textContent = "Module 2: AUTO";
+  else mp.textContent = `Module 2: ${chosenMode.toUpperCase()}`;
+}
+
+// ==========================
+// COMPLETION CHECKS
+// ==========================
+function allAnsweredInBlocks(blocks){
+  for (const b of blocks){
+    for (const q of b.questions){
+      if (b.type === "ctest"){
+        // C-test questions use ctest_<id> input
+        const correct = (typeof q.answer === "string") ? q.answer : "";
+        // for Q1–Q10, require exact length (ETS-like); for Q9 also exact length
+        const user = getCtestUserAnswer(q.id);
+        if (user.length !== correct.length) return false;
+      } else {
+        const chosen = document.querySelector(`input[name="q${q.id}"]:checked`);
+        if (!chosen) return false;
+      }
+    }
+  }
+  return true;
+}
+
+// ==========================
+// SCORING
+// ==========================
+function scoreBlocks(blocks){
+  let correct = 0;
+  let total = 0;
+
+  for (const {block, q} of collectQuestions(blocks)){
+    total++;
+    if (block.type === "ctest"){
+      const user = getCtestUserAnswer(q.id).toLowerCase();
+      const ans  = String(q.answer).toLowerCase();
+      if (user === ans) correct++;
+    } else {
+      const chosen = document.querySelector(`input[name="q${q.id}"]:checked`);
+      const idx = chosen ? Number(chosen.value) : -1;
+      if (idx === q.answer) correct++;
+    }
+  }
+  return { correct, total };
+}
+
+function decideModule2Mode(){
+  const s = scoreBlocks(module1);
+  const mode = (s.correct >= HARD_THRESHOLD) ? "hard" : "easy";
+  return { mode, score: s };
+}
+
+function getModule2Blocks(mode){
+  return mode === "hard" ? module2_hard : module2_easy;
 }
 
 // ==========================
@@ -542,7 +723,7 @@ function start(){
   document.getElementById("timer").textContent = formatTime(timeLeft);
 
   document.getElementById("startBtn").disabled = true;
-  document.getElementById("nextModuleBtn").disabled = false; // enabled, but we gate it by completion check
+  document.getElementById("nextModuleBtn").disabled = false;
   document.getElementById("submitBtn").disabled = true;
 
   renderBlocks(module1, false);
@@ -551,38 +732,29 @@ function start(){
   window.scrollTo({top:0, behavior:"smooth"});
 }
 
-function allAnsweredInModule(blocks){
-  const q = collectQuestions(blocks);
-  return q.every(item => document.querySelector(`input[name="q${item.id}"]:checked`));
-}
-
 function goToModule2(){
   if (!started || moduleIndex !== 1) return;
 
-  // require completion of module 1
-  if (!allAnsweredInModule(module1)){
-    alert("Please answer all Module 1 questions before moving to Module 2.");
+  if (!allAnsweredInBlocks(module1)){
+    alert("Please answer all Module 1 questions before moving to Module 2.\n(For C-test items: type the full missing letters.)");
     return;
   }
 
   const decision = decideModule2Mode();
   chosenMode = decision.mode;
-
   moduleIndex = 2;
 
   const blocks2 = getModule2Blocks(chosenMode);
   renderBlocks(blocks2, false);
 
-  // Module 2 shown → now allow final submit
-  document.getElementById("submitBtn").disabled = false;
-  document.getElementById("nextModuleBtn").disabled = true;
-
-  // show a small info banner at top of quiz
   const root = document.getElementById("quiz");
   const banner = document.createElement("div");
   banner.className = "warn";
   banner.innerHTML = `<b>Auto-switch:</b> Module 1 score = <b>${decision.score.correct}/${decision.score.total}</b>. Module 2 selected: <b>${chosenMode.toUpperCase()}</b>.`;
   root.prepend(banner);
+
+  document.getElementById("submitBtn").disabled = false;
+  document.getElementById("nextModuleBtn").disabled = true;
 
   updatePills();
   window.scrollTo({top:0, behavior:"smooth"});
@@ -591,7 +763,6 @@ function goToModule2(){
 function submitQuiz(auto=false){
   if (!started) return;
 
-  // must be in module 2 to submit
   if (moduleIndex !== 2){
     alert("Please click “Next module” to complete Module 2 before submitting.");
     return;
@@ -599,8 +770,7 @@ function submitQuiz(auto=false){
 
   const blocks2 = getModule2Blocks(chosenMode);
 
-  // require completion of module 2
-  if (!allAnsweredInModule(blocks2)){
+  if (!allAnsweredInBlocks(blocks2)){
     alert("Please answer all Module 2 questions before submitting.");
     return;
   }
@@ -614,15 +784,33 @@ function submitQuiz(auto=false){
   document.getElementById("submitBtn").disabled = true;
 
   const allBlocks = [...module1, ...blocks2];
-  const allQ = collectQuestions(allBlocks);
 
-  let correct = 0;
+  // Score + review
+  let correctCount = 0;
+  let totalCount = 0;
 
-  allQ.forEach(q => {
-    const chosen = document.querySelector(`input[name="q${q.id}"]:checked`);
-    const chosenIdx = chosen ? Number(chosen.value) : -1;
-    const isCorrect = chosenIdx === q.answer;
-    if (isCorrect) correct++;
+  for (const {block, q} of collectQuestions(allBlocks)){
+    totalCount++;
+
+    let isCorrect = false;
+    let chosenText = "";
+    let correctText = "";
+
+    if (block.type === "ctest"){
+      const user = getCtestUserAnswer(q.id);
+      const ans = String(q.answer);
+      chosenText = user.length ? user : "(no answer)";
+      correctText = ans;
+      isCorrect = user.toLowerCase() === ans.toLowerCase();
+    } else {
+      const chosen = document.querySelector(`input[name="q${q.id}"]:checked`);
+      const idx = chosen ? Number(chosen.value) : -1;
+      chosenText = idx >= 0 ? q.options[idx] : "(no answer)";
+      correctText = q.options[q.answer];
+      isCorrect = idx === q.answer;
+    }
+
+    if (isCorrect) correctCount++;
 
     const tag = document.getElementById(`tag-${q.id}`);
     if (tag){
@@ -634,11 +822,9 @@ function submitQuiz(auto=false){
     const review = document.getElementById(`review-${q.id}`);
     if (review){
       review.style.display = "block";
-      const chosenText = chosenIdx >= 0 ? q.options[chosenIdx] : "(no answer)";
-      const correctText = q.options[q.answer];
       review.innerHTML = `<b>Your answer:</b> ${escapeHtml(chosenText)}<br><b>Correct answer:</b> ${escapeHtml(correctText)}`;
     }
-  });
+  }
 
   const res = document.getElementById("result");
   res.style.display = "block";
@@ -646,7 +832,7 @@ function submitQuiz(auto=false){
     <h3 style="margin-top:0">Result</h3>
     <div class="split">
       <div>
-        <p><b>Score:</b> ${correct} / ${allQ.length}</p>
+        <p><b>Score:</b> ${correctCount} / ${totalCount}</p>
         <p class="muted"><b>Module 2 used:</b> ${chosenMode.toUpperCase()} | <b>Threshold:</b> ${HARD_THRESHOLD}/22</p>
         <p class="muted">${auto ? "Time is up — your answers were submitted automatically." : ""}</p>
       </div>
@@ -668,8 +854,10 @@ function resetAll(){
   timeLeft = 30*60;
   document.getElementById("timer").textContent = formatTime(timeLeft);
 
-  // Clear selections
+  // Clear MCQ selections
   document.querySelectorAll('input[type="radio"]').forEach(i => i.checked = false);
+  // Clear C-test inputs
+  document.querySelectorAll('input.ctest-input').forEach(i => i.value = "");
 
   // Hide result
   const res = document.getElementById("result");
@@ -681,14 +869,13 @@ function resetAll(){
   document.getElementById("nextModuleBtn").disabled = true;
   document.getElementById("submitBtn").disabled = true;
 
-  // Render Module 1 disabled view
   renderBlocks(module1, true);
   updatePills();
   window.scrollTo({top:0, behavior:"smooth"});
 }
 
 // ==========================
-// WIRE UI
+// UI WIRING
 // ==========================
 document.getElementById("startBtn").addEventListener("click", start);
 document.getElementById("nextModuleBtn").addEventListener("click", goToModule2);
