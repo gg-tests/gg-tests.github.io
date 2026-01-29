@@ -1,894 +1,1047 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>TOEFL iBT Reading (2026) — ETS-aligned (Auto-switch + C-test + Review)</title>
-  <style>
-    :root{--bd:#e5e7eb;--muted:#6b7280;--ok:#10b981;--bad:#ef4444}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:980px;margin:24px auto;padding:0 16px;line-height:1.45}
-    .sticky{position:sticky;top:0;background:#fff;padding:10px 0 12px;border-bottom:1px solid var(--bd);z-index:20}
-    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-    h2{margin:0;font-size:18px}
-    .muted{color:var(--muted)}
-    .danger{color:#b00020;font-weight:800}
-    .card{border:1px solid var(--bd);border-radius:14px;padding:16px;margin:12px 0}
-    .passage{white-space:pre-wrap;background:#f8fafc;border:1px solid var(--bd);padding:12px;border-radius:12px}
-    button{padding:10px 14px;border-radius:12px;border:1px solid #111;background:#111;color:#fff;cursor:pointer}
-    button.secondary{background:#fff;color:#111;border:1px solid #9ca3af}
-    button:disabled{opacity:.5;cursor:not-allowed}
-    .q{margin:14px 0;padding:12px;border-radius:12px;border:1px solid var(--bd)}
-    .q h4{margin:0 0 10px 0;font-size:15px}
-    label{display:block;margin:6px 0;cursor:pointer}
-    .tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--bd);margin-left:8px}
-    .ok{background:#ecfdf5;border-color:var(--ok);color:#065f46}
-    .bad{background:#fef2f2;border-color:var(--bad);color:#7f1d1d}
-    .review-line{margin-top:10px;font-size:13px}
-    .review-line b{font-weight:800}
-    .split{display:grid;grid-template-columns:1fr;gap:10px}
-    @media (min-width: 820px){ .split{grid-template-columns:1fr 1fr} }
-    .pill{display:inline-block;font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--bd);background:#fff}
-    .hr{height:1px;background:var(--bd);margin:12px 0}
-    .warn{background:#fffbeb;border:1px solid #f59e0b;color:#92400e;border-radius:12px;padding:10px;margin-bottom:12px}
-    code{background:#f3f4f6;padding:2px 6px;border-radius:8px}
-    .ctest-input{
-      display:inline-block;
-      font-size:14px;
-      padding:6px 8px;
-      margin:0 4px;
-      border-radius:10px;
-      border:1px solid var(--bd);
-      background:#fff;
-      outline:none;
-      vertical-align:baseline;
-    }
-    .ctest-input:disabled{background:#f3f4f6}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOEFL Reading Mock Test</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            padding: 30px;
+            margin: 20px 0;
+        }
+        
+        h1, h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2980b9;
+        }
+        
+        .timer {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #856404;
+        }
+        
+        .module-selection {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .module-btn {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .module-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .module-btn.active {
+            background-color: #2c3e50;
+        }
+        
+        .test-content {
+            display: none;
+        }
+        
+        .test-content.active {
+            display: block;
+        }
+        
+        .c-test {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border-left: 4px solid #3498db;
+        }
+        
+        .c-test p {
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
+        
+        .c-blank {
+            display: inline-block;
+            width: 40px;
+            margin: 0 5px;
+            border-bottom: 2px solid #7f8c8d;
+            text-align: center;
+        }
+        
+        .c-blank input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-size: 1em;
+            text-transform: lowercase;
+            outline: none;
+        }
+        
+        .c-blank.correct {
+            border-bottom-color: #27ae60;
+        }
+        
+        .c-blank.incorrect {
+            border-bottom-color: #e74c3c;
+        }
+        
+        .question {
+            margin: 25px 0;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #95a5a6;
+        }
+        
+        .question.mcq {
+            border-left-color: #9b59b6;
+        }
+        
+        .question-text {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        .options {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .option {
+            padding: 12px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .option:hover {
+            background-color: #f1f8ff;
+            border-color: #3498db;
+        }
+        
+        .option.selected {
+            background-color: #d6eaf8;
+            border-color: #3498db;
+        }
+        
+        .option.correct {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        
+        .option.incorrect {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        
+        .reading-passage {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            line-height: 1.7;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-submit {
+            background-color: #27ae60;
+        }
+        
+        .btn-submit:hover {
+            background-color: #219653;
+        }
+        
+        .btn-next {
+            background-color: #9b59b6;
+        }
+        
+        .btn-next:hover {
+            background-color: #8e44ad;
+        }
+        
+        .results {
+            display: none;
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        
+        .results.active {
+            display: block;
+        }
+        
+        .score-display {
+            font-size: 1.5em;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            color: #2c3e50;
+        }
+        
+        .score-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .score-item {
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .correct-answer {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .incorrect-answer {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #e8f4fc;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .module-selection {
+                flex-direction: column;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
-
-<div class="sticky">
-  <div class="row">
-    <h2>TOEFL iBT Reading (2026) — ETS-aligned Mock</h2>
-    <span id="modulePill" class="pill muted">Module: not started</span>
-    <span id="modePill" class="pill muted">Module 2: auto</span>
-
-    <div style="margin-left:auto" class="row">
-      <span class="muted">Time left:</span>
-      <span id="timer" class="danger">30:00</span>
-      <button id="startBtn">Start</button>
-      <button id="nextModuleBtn" class="secondary" disabled>Next module</button>
-      <button id="submitBtn" class="secondary" disabled>Submit</button>
-      <button id="resetBtn" class="secondary">Reset</button>
+    <div class="container">
+        <h1>TOEFL iBT® Reading Mock Test</h1>
+        
+        <div class="timer" id="timer">
+            Module Time: <span id="time">18:00</span>
+        </div>
+        
+        <div class="warning">
+            <strong>Instructions:</strong> This test contains two modules. Complete Module 1 first, then proceed to Module 2. You will have 18 minutes for each module. Do not return to Module 1 once you have started Module 2.
+        </div>
+        
+        <div class="module-selection">
+            <button class="module-btn active" id="btn-module1">Module 1</button>
+            <button class="module-btn" id="btn-module2">Module 2</button>
+        </div>
+        
+        <!-- MODULE 1 -->
+        <div class="test-content active" id="module1">
+            <h2>Module 1</h2>
+            
+            <div class="c-test">
+                <p><strong>Fill in the missing letters in the paragraph. (Questions 1–10)</strong></p>
+                <p>
+                    The Great Wall of China is one of the most remarkable feats of ancient engineering. 
+                    Stret<span class="c-blank" data-answer="ching"><input type="text" maxlength="5"></span> 
+                    for thou<span class="c-blank" data-answer="sands"><input type="text" maxlength="5"></span> 
+                    of kil<span class="c-blank" data-answer="ometers"><input type="text" maxlength="7"></span>, 
+                    it wa<span class="c-blank" data-answer="s"><input type="text" maxlength="1"></span> 
+                    built ov<span class="c-blank" data-answer="er"><input type="text" maxlength="2"></span> 
+                    many cen<span class="c-blank" data-answer="turies"><input type="text" maxlength="6"></span> 
+                    to pro<span class="c-blank" data-answer="tect"><input type="text" maxlength="5"></span> 
+                    China fr<span class="c-blank" data-answer="om"><input type="text" maxlength="2"></span> 
+                    invasions fr<span class="c-blank" data-answer="om"><input type="text" maxlength="2"></span> 
+                    the north. De<span class="c-blank" data-answer="spite"><input type="text" maxlength="5"></span> 
+                    its im<span class="c-blank" data-answer="mense"><input type="text" maxlength="5"></span> 
+                    size, it wa<span class="c-blank" data-answer="s"><input type="text" maxlength="1"></span> 
+                    not a<span class="c-blank" data-answer="n"><input type="text" maxlength="1"></span> 
+                    unbre<span class="c-blank" data-answer="akable"><input type="text" maxlength="7"></span> 
+                    barrier bu<span class="c-blank" data-answer="t"><input type="text" maxlength="1"></span> 
+                    rather a sy<span class="c-blank" data-answer="stem"><input type="text" maxlength="4"></span> 
+                    of fortifications. To<span class="c-blank" data-answer="day"><input type="text" maxlength="3"></span>, 
+                    it i<span class="c-blank" data-answer="s"><input type="text" maxlength="1"></span> 
+                    a UNESCO World Heritage Site and a popular tourist destination.
+                </p>
+            </div>
+            
+            <div class="reading-passage">
+                <p><strong>Read an email notification.</strong></p>
+                <p><em>To: allstudents@campus.edu<br>
+                From: library@campus.edu<br>
+                Date: March 12, 2026<br>
+                Subject: Extended Hours During Finals Week</em></p>
+                
+                <p>Dear Students,</p>
+                
+                <p>To support your studies during finals week, the campus library will extend its operating hours. From Monday, March 20, through Friday, March 24, the library will remain open until 2:00 AM. Regular hours will resume on Saturday, March 25.</p>
+                
+                <p>Please note that the 24-hour study rooms on the second floor will continue to be available as usual. We wish you the best of luck on your exams!</p>
+                
+                <p>Sincerely,<br>
+                Campus Library Administration</p>
+            </div>
+            
+            <div class="question mcq" data-correct="B">
+                <div class="question-text">11. What is the main purpose of this email?</div>
+                <div class="options">
+                    <div class="option" data-value="A">To announce a new library location</div>
+                    <div class="option" data-value="B">To inform students of longer library hours</div>
+                    <div class="option" data-value="C">To warn students about a library closure</div>
+                    <div class="option" data-value="D">To promote a new study room service</div>
+                </div>
+            </div>
+            
+            <div class="question mcq" data-correct="B">
+                <div class="question-text">12. When will the extended hours end?</div>
+                <div class="options">
+                    <div class="option" data-value="A">March 20</div>
+                    <div class="option" data-value="B">March 24</div>
+                    <div class="option" data-value="C">March 25</div>
+                    <div class="option" data-value="D">March 30</div>
+                </div>
+            </div>
+            
+            <div class="reading-passage">
+                <p><strong>Read a social media post.</strong></p>
+                <p><strong>Travel with Leo</strong><br>
+                Just got back from a weekend trip to the mountains! If you're looking for a peaceful escape, I highly recommend the Blue Ridge cabins. The cabins are fully equipped, cozy, and surrounded by stunning views. Waking up to the sound of birds and the sight of misty valleys is pure magic.</p>
+                
+                <p>Don't miss the nearby hiking trails—they range from easy walks to challenging climbs. The Sunset Peak trail is my favorite; the view from the top is absolutely worth the effort. Whether you're an avid hiker or just want to relax in nature, this place has something for everyone.</p>
+            </div>
+            
+            <div class="question mcq" data-correct="B">
+                <div class="question-text">13. What is the main purpose of this post?</div>
+                <div class="options">
+                    <div class="option" data-value="A">To compare different vacation spots</div>
+                    <div class="option" data-value="B">To recommend a travel destination</div>
+                    <div class="option" data-value="C">To warn about difficult hiking trails</div>
+                    <div class="option" data-value="D">To review outdoor equipment</div>
+                </div>
+            </div>
+            
+            <div class="question mcq" data-correct="C">
+                <div class="question-text">14. What does the author say about the Sunset Peak trail?</div>
+                <div class="options">
+                    <div class="option" data-value="A">It is suitable only for experienced hikers.</div>
+                    <div class="option" data-value="B">The view from the top is disappointing.</div>
+                    <div class="option" data-value="C">It is his favorite because of the view.</div>
+                    <div class="option" data-value="D">It is the easiest trail in the area.</div>
+                </div>
+            </div>
+            
+            <div class="question mcq" data-correct="B">
+                <div class="question-text">15. Who would most enjoy visiting the Blue Ridge cabins according to the post?</div>
+                <div class="options">
+                    <div class="option" data-value="A">People who prefer city vacations</div>
+                    <div class="option" data-value="B">Those looking for a peaceful nature retreat</div>
+                    <div class="option" data-value="C">Visitors interested in historical sites</div>
+                    <div class="option" data-value="D">Travelers who enjoy nightlife</div>
+                </div>
+            </div>
+            
+            <div class="reading-passage">
+                <p><strong>Read an academic passage.</strong></p>
+                <h3>The History of the Printing Press</h3>
+                <p>The invention of the printing press by Johannes Gutenberg in the mid-15th century revolutionized communication and education in Europe. Before the printing press, books were copied by hand, making them rare and expensive. Gutenberg's press used movable type, which allowed for the mass production of texts. This innovation dramatically reduced the cost of books and made them accessible to a broader audience.</p>
+                
+                <p>The printing press played a crucial role in the spread of new ideas during the Renaissance and the Reformation. It enabled the rapid dissemination of scientific discoveries, religious texts, and political writings. Some historians argue that the printing press was one of the key factors that led to the rise of modern society by promoting literacy and the exchange of knowledge.</p>
+            </div>
+            
+            <div class="question mcq" data-correct="C">
+                <div class="question-text">16. What is the passage mainly about?</div>
+                <div class="options">
+                    <div class="option" data-value="A">The life of Johannes Gutenberg</div>
+                    <div class="option" data-value="B">How books were made before the printing press</div>
+                    <div class="option" data-value="C">The impact of the printing press on society</div>
+                    <div class="option" data-value="D">The cost of books in the 15th century</div>
+                </div>
+            </div>
+            
+            <div class="question mcq" data-correct="B">
+                <div class="question-text">17. The word "dissemination" in paragraph 2 is closest in meaning to</div>
+                <div class="options">
+                    <div class="option" data-value="A">creation</div>
+                    <div class="option" data-value="B">spread</div>
+                    <div class="option" data-value="C">criticism</div>
+                    <div class="option" data-value="D">protection</div>
+                </div>
+            </div>
+            
+            <div class="question mcq" data-correct="C">
+                <div class="question-text">18. According to the passage, what was one effect of the printing press?</div>
+                <div class="options">
+                    <div class="option" data-value="A">It made books more expensive.</div>
+                    <div class="option" data-value="B">It slowed down scientific progress.</div>
+                    <div class="option" data-value="C">It increased the availability of books.</div>
+                    <div class="option" data-value="D">It reduced the need for writing by hand.</div>
+                </div>
+            </div>
+            
+            <div class="question mcq" data-correct="B">
+                <div class="question-text">19. Why does the author mention the Renaissance and the Reformation?</div>
+                <div class="options">
+                    <div class="option" data-value="A">To contrast two historical periods</div>
+                    <div class="option" data-value="B">To give examples of movements influenced by the printing press</div>
+                    <div class="option" data-value="C">To explain why the printing press was invented</div>
+                    <div class="option" data-value="D">To criticize the role of religion in history</div>
+                </div>
+            </div>
+            
+            <div class="question mcq" data-correct="D">
+                <div class="question-text">20. What can be inferred about books before the printing press?</div>
+                <div class="options">
+                    <div class="option" data-value="A">They were widely available.</div>
+                    <div class="option" data-value="B">They were mostly religious texts.</div>
+                    <div class="option" data-value="C">They were affordable for most people.</div>
+                    <div class="option" data-value="D">They were produced slowly and in small numbers.</div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-submit" id="submit-module1">Submit Module 1</button>
+            </div>
+        </div>
+        
+        <!-- MODULE 2 -->
+        <div class="test-content" id="module2">
+            <h2>Module 2</h2>
+            
+            <div class="c-test">
+                <p><strong>Fill in the missing letters in the paragraph. (Questions 1–10)</strong></p>
+                <p>
+                    Climate change refers to significant changes in global temperatures and weather pat
+                    <span class="c-blank" data-answer="terns"><input type="text" maxlength="6"></span> 
+                    over exte
+                    <span class="c-blank" data-answer="nded"><input type="text" maxlength="5"></span> 
+                    periods. Sc
+                    <span class="c-blank" data-answer="ientists"><input type="text" maxlength="8"></span> 
+                    agree that human ac
+                    <span class="c-blank" data-answer="tivities"><input type="text" maxlength="7"></span>, 
+                    such as burning fo
+                    <span class="c-blank" data-answer="ssil"><input type="text" maxlength="4"></span> 
+                    fuels and defor
+                    <span class="c-blank" data-answer="estation"><input type="text" maxlength="9"></span>, 
+                    are major contributors. Th
+                    <span class="c-blank" data-answer="ese"><input type="text" maxlength="4"></span> 
+                    activities rel
+                    <span class="c-blank" data-answer="ease"><input type="text" maxlength="5"></span> 
+                    greenhouse gases, wh
+                    <span class="c-blank" data-answer="ich"><input type="text" maxlength="4"></span> 
+                    trap heat in the atmosphere. Th
+                    <span class="c-blank" data-answer="is"><input type="text" maxlength="2"></span> 
+                    leads to global warming, melting ice caps, and more extreme wea
+                    <span class="c-blank" data-answer="ther"><input type="text" maxlength="5"></span> 
+                    events.
+                </p>
+            </div>
+            
+            <div class="reading-passage">
+                <p><strong>Read a memo.</strong></p>
+                <p><em>To: All Staff<br>
+                From: Management<br>
+                Date: April 5, 2026<br>
+                Subject: New Hybrid Work Policy</em></p>
+                
+                <p>Starting Monday, April 10, our company will implement a hybrid work policy. Employees may choose to work from home up to three days per week. On Tuesdays and Thursdays, all staff are expected to be in the office for team meetings and collaboration.</p>
+                
+                <p>Please discuss your preferred schedule with your supervisor by this Friday. We believe this change will improve work-life balance and productivity.</p>
+            </div>
+            
+            <div class="question mcq" data-correct="B">
+                <div class="question-text">11. What is the main purpose of this memo?</div>
+                <div class="options">
+                    <div class="option" data-value="A">To announce permanent remote work</div>
+                    <div class="option" data-value="B">To introduce a new hybrid work schedule</div>
+                    <div class="option" data-value="C">To cancel all in-office meetings</div>
+                    <div class="option" data-value="D">To assign new supervisors</div>
+                </div>
+            </div>
+            
+            <div class="question mcq" data-correct="B">
+                <div class="question-text">12. On which days are employees required to be in the office?</div>
+                <div class="options">
+                    <div class="option" data-value="A">Mondays and Wednesdays</div>
+                    <div class="option" data-value="B">Tuesdays and Thursdays</div>
+                    <div class="option" data-value="C">Fridays only</div>
+                    <div class="option" data-value="D">Every day</div>
+                </div>
+            </div>
+            
+            <div class="reading-passage">
+                <p><strong>Read a product review.</strong></p>
+                <p><strong>Eco-Friendly Water Bottle Review</strong><br>
+                I recently purchased the "AquaPure" stainless steel water bottle, and I'm very impressed. It keeps drinks cold for up to 24 hours and hot for 12 hours—perfect for long hikes or workdays. The bottle is also lightweight and fits in most car cup holders.</p>
+                
+                <p>What I love most is its eco-friendly design. It's made from recycled materials and is completely BPA-free. Plus, for every bottle sold, the company donates to clean water projects. Highly recommend for anyone looking to reduce plastic waste!</p>
+            </div>
+            
+            <div class="question mcq" data-correct="B">
+                <div class="question-text">13. What is the main purpose of this review?</div>
+                <div class="options">
+                    <div class="option" data-value="A">To criticize plastic water bottles</div>
+                    <div class="option" data-value="B">To promote an eco-friendly product</div>
+                    <div class="option" data-value="C">To compare different bottle materials</div>
+                    <div class="option" data-value="D">To discuss water conservation projects</div>
+                </div>
+            </div>
+            
+            <div class="question mcq" data-correct="B">
+                <div class="question-text">14. According to the review, what is one benefit of the AquaPure bottle?</div>
+                <div class="options">
+                    <div class="option" data-value="A">It is very cheap.</div>
+                    <div class="option" data-value="B">It is made from recycled materials.</div>
+                    <div class="option" data-value="C">It comes in many colors.</div>
+                    <div class="option" data-value="D">It is unbreakable.</div>
+                </div>
+            </div>
+            
+            <div class="question mcq" data-correct="A">
+                <div class="question-text">15. Why might someone buy this bottle based on the review?</div>
+                <div class="options">
+                    <div class="option" data-value="A">To support clean water projects</div>
+                    <div class="option" data-value="B">Because it is the lightest bottle available</div>
+                    <div class="option" data-value="C">To get a free gift with purchase</div>
+                    <div class="option" data-value="D">Because it is recommended by celebrities</div>
+                </div>
+            </div>
+            
+            <div class="reading-passage">
+                <p><strong>Read an academic passage.</strong></p>
+                <h3>The Benefits of Bilingualism</h3>
+                <p>Research in cognitive science has shown that being bilingual—speaking two languages fluently—offers numerous mental advantages. Bilingual individuals often demonstrate enhanced executive function, which includes skills such as problem-solving, multitasking, and focusing attention. These benefits arise because managing two languages requires constant mental flexibility and inhibition of one language while using the other.</p>
+                
+                <p>Moreover, bilingualism has been linked to delayed onset of age-related cognitive decline and diseases such as Alzheimer's. Studies suggest that the mental exercise involved in switching between languages strengthens the brain's resilience. Additionally, bilingualism provides social and cultural benefits, enabling individuals to connect with diverse communities and access multiple perspectives.</p>
+            </div>
+            
+            <div class="question mcq" data-correct="B">
+                <div class="question-text">16. Which of the following best states the main idea of the passage?</div>
+                <div class="options">
+                    <div class="option" data-value="A">Learning a second language is very difficult.</div>
+                    <div class="option" data-value="B">Bilingualism improves cognitive and social abilities.</div>
+                    <div class="option" data-value="C">Monolingual people have weaker memories.</div>
+                    <div class="option" data-value="D">Children learn languages faster than adults.</div>
+                </div>
+            </div>
+            
+            <div class="question mcq" data-correct="B">
+                <div class="question-text">17. According to the passage, what is "executive function"?</div>
+                <div class="options">
+                    <div class="option" data-value="A">The ability to speak two languages</div>
+                    <div class="option" data-value="B">Skills like problem-solving and multitasking</div>
+                    <div class="option" data-value="C">Memory recall in older adults</div>
+                    <div class="option" data-value="D">Social communication skills</div>
+                </div>
+            </div>
+            
+            <div class="question mcq" data-correct="A">
+                <div class="question-text">18. Why does the author mention Alzheimer's disease?</div>
+                <div class="options">
+                    <div class="option" data-value="A">To show that bilingualism can delay cognitive decline</div>
+                    <div class="option" data-value="B">To argue that language learning prevents all brain diseases</div>
+                    <div class="option" data-value="C">To criticize medical research on aging</div>
+                    <div class="option" data-value="D">To compare bilingual and monolingual patients</div>
+                </div>
+            </div>
+            
+            <div class="question mcq" data-correct="C">
+                <div class="question-text">19. The word "resilience" in paragraph 2 is closest in meaning to</div>
+                <div class="options">
+                    <div class="option" data-value="A">weakness</div>
+                    <div class="option" data-value="B">recovery</div>
+                    <div class="option" data-value="C">resistance</div>
+                    <div class="option" data-value="D">speed</div>
+                </div>
+            </div>
+            
+            <div class="question mcq" data-correct="B">
+                <div class="question-text">20. What can be inferred about bilingual individuals?</div>
+                <div class="options">
+                    <div class="option" data-value="A">They are always better at math.</div>
+                    <div class="option" data-value="B">They may have stronger mental flexibility.</div>
+                    <div class="option" data-value="C">They avoid social interactions.</div>
+                    <div class="option" data-value="D">They prefer to use only one language daily.</div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-submit" id="submit-module2">Submit Module 2</button>
+            </div>
+        </div>
+        
+        <!-- RESULTS SECTION -->
+        <div class="results" id="results">
+            <h2>Test Results</h2>
+            <div class="score-display" id="final-score">Score: 0/40</div>
+            
+            <div class="score-breakdown" id="score-breakdown">
+                <!-- Will be filled by JavaScript -->
+            </div>
+            
+            <div class="feedback" id="feedback">
+                <!-- Will be filled by JavaScript -->
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn" id="retry-test">Retry Test</button>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
-<div class="card">
-  <p><b>Instructions</b></p>
-  <ul>
-    <li>Time limit: <b>30 minutes</b> (both modules together)</li>
-    <li>No dictionaries or translation tools</li>
-    <li>Task 1 is a <b>C-test style</b> “Complete the Words”: type <b>ONLY</b> the missing letters</li>
-    <li>After submission, you will see a <b>review</b> (correct answers)</li>
-  </ul>
-
-  <div class="hr"></div>
-
-  <p class="muted" style="margin:0">
-    <b>Auto-switch:</b> Module 2 is selected based on Module 1 score (out of 22).
-    Adjust threshold here:
-    <code>const HARD_THRESHOLD = 15;</code>
-  </p>
-</div>
-
-<div id="quiz"></div>
-
-<div id="result" class="card" style="display:none"></div>
-
-<script>
-/**
- * ==========================
- * AUTO-SWITCH SETTINGS
- * ==========================
- * If Module 1 score >= HARD_THRESHOLD → Module 2 = HARD.
- * Else → Module 2 = EASY (still B2, just softer).
- */
-const HARD_THRESHOLD = 15; // suggested range: 14–16
-
-// ==========================
-// HELPERS
-// ==========================
-function formatTime(sec){
-  const m = String(Math.floor(sec/60)).padStart(2,'0');
-  const s = String(sec%60).padStart(2,'0');
-  return `${m}:${s}`;
-}
-function escapeHtml(str){
-  return String(str)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
-function setInputsDisabled(disabled){
-  document.querySelectorAll('input[type="radio"]').forEach(i => i.disabled = disabled);
-  document.querySelectorAll('input.ctest-input').forEach(i => i.disabled = disabled);
-}
-function startTimer(){
-  timerId = setInterval(() => {
-    timeLeft--;
-    document.getElementById("timer").textContent = formatTime(timeLeft);
-    if (timeLeft <= 0){
-      clearInterval(timerId);
-      submitQuiz(true);
-    }
-  }, 1000);
-}
-function collectQuestions(blocks){
-  const all = [];
-  blocks.forEach(b => b.questions.forEach(q => all.push({ block: b, q })));
-  return all;
-}
-
-// ==========================
-// C-TEST RENDER + ACCESSORS
-// ==========================
-function renderCtestPassage(block, disabled){
-  // block.ctestTemplate uses {{1}}, {{2}} ... placeholders
-  // block.ctestBlanks contains { id: <placeholder number>, qid: <question id>, missing, expectedLen }
-  const blankMap = new Map(block.ctestBlanks.map(b => [String(b.id), b]));
-  const parts = block.ctestTemplate.split(/(\{\{\d+\}\})/g);
-
-  const container = document.createElement("div");
-  container.className = "passage";
-
-  parts.forEach(part => {
-    const m = part.match(/^\{\{(\d+)\}\}$/);
-    if (!m){
-      container.appendChild(document.createTextNode(part));
-      return;
-    }
-    const pid = m[1];
-    const blank = blankMap.get(pid);
-
-    const input = document.createElement("input");
-    input.type = "text";
-    input.className = "ctest-input";
-    input.inputMode = "text";
-    input.autocomplete = "off";
-    input.spellcheck = false;
-    input.maxLength = blank.expectedLen;
-    input.disabled = !!disabled;
-    input.name = `ctest_${blank.qid}`;
-    input.placeholder = "·".repeat(blank.expectedLen);
-
-    // width approx by expected length
-    input.style.width = Math.max(44, blank.expectedLen * 10 + 18) + "px";
-
-    // auto-advance
-    input.addEventListener("input", () => {
-      if (input.value.length >= blank.expectedLen){
-        const nextQid = blank.qid + 1;
-        const next = document.querySelector(`input[name="ctest_${nextQid}"]`);
-        if (next) next.focus();
-      }
-    });
-
-    container.appendChild(input);
-  });
-
-  return container;
-}
-function getCtestUserAnswer(qid){
-  const el = document.querySelector(`input[name="ctest_${qid}"]`);
-  return el ? el.value.trim() : "";
-}
-function getCtestCorrectMissing(qid, block){
-  const blank = block.ctestBlanks.find(b => b.qid === qid);
-  return blank ? blank.missing : "";
-}
-function isCtestAnswered(qid, block){
-  const user = getCtestUserAnswer(qid);
-  const blank = block.ctestBlanks.find(b => b.qid === qid);
-  if (!blank) return false;
-  return user.length === blank.expectedLen; // strict completion (ETS-like)
-}
-
-// ==========================
-// DATA (ETS-aligned, 44 items)
-// ==========================
-
-const module1 = [
-  {
-    type: "ctest",
-    title: "MODULE 1 — ROUTING | Task 1: Complete the Words (C-test style) (Q1–Q10)",
-    intro: "Type ONLY the missing letters for each blank (each blank = 1 question).",
-    // Prefix + {{n}} gives the missing tail (like ETS Complete the Words)
-    ctestTemplate:
-`Archaeological evidence preserved in caves for thousands of years indicates that early humans engaged in activities beyond basic survival. We mi{{1}} think that prehistoric people focused only on immediate needs. How{{2}}, rec{{3}} show that arti{{4}} expression was highly valu{{5}} and played a signi{{6}} role in streng{{7}} group ide{{8}} and social cohe{{10}}.`,
-    ctestBlanks: [
-      { id: 1,  qid: 1,  missing: "ght",      expectedLen: 3  }, // might
-      { id: 2,  qid: 2,  missing: "ever",     expectedLen: 4  }, // However
-      { id: 3,  qid: 3,  missing: "ords",     expectedLen: 4  }, // records
-      { id: 4,  qid: 4,  missing: "stic",     expectedLen: 4  }, // artistic
-      { id: 5,  qid: 5,  missing: "ed",       expectedLen: 2  }, // valued
-      { id: 6,  qid: 6,  missing: "ficant",   expectedLen: 6  }, // significant
-      { id: 7,  qid: 7,  missing: "thening",  expectedLen: 7  }, // strengthening
-      { id: 8,  qid: 8,  missing: "ntity",    expectedLen: 5  }, // identity
-      // Q9 kept as “soci___al” in the question list for ETS-format consistency,
-      // but not embedded into the running text to keep the passage readable.
-      { id: 10, qid:10,  missing: "sion",     expectedLen: 4  }  // cohesion
-    ],
-    questions: [
-      { id: 1,  text: "mi___",            answer: "ght" },
-      { id: 2,  text: "How___er",         answer: "ever" },
-      { id: 3,  text: "rec___ds",         answer: "ords" },
-      { id: 4,  text: "arti___ic",        answer: "stic" },
-      { id: 5,  text: "valu___d",         answer: "ed" },
-      { id: 6,  text: "signi___ant",      answer: "ficant" },
-      { id: 7,  text: "streng___ening",   answer: "thening" },
-      { id: 8,  text: "ide___ity",        answer: "ntity" },
-      { id: 9,  text: "soci___al (type: cial)", answer: "cial", standalone: true, expectedLen: 4 },
-      { id:10,  text: "cohe___ion",       answer: "sion" }
-    ]
-  },
-
-  {
-    title: "MODULE 1 — ROUTING | Task 2: Read in Daily Life (Notice) (Q11–Q12)",
-    passage: `Campus Notice
-
-Due to scheduled maintenance, access to the university learning platform will be unavailable on May 6 from 2:00 a.m. to 6:00 a.m. Students are advised to download course materials in advance to avoid disruption.`,
-    questions: [
-      { id:11, text:"What is the main purpose of the notice?",
-        options:["To promote a new platform","To announce temporary service unavailability","To explain platform features","To report system errors"],
-        answer:1
-      },
-      { id:12, text:"What are students advised to do?",
-        options:["Contact instructors","Delay coursework","Download materials beforehand","Avoid using the platform permanently"],
-        answer:2
-      }
-    ]
-  },
-
-  {
-    title: "MODULE 1 — ROUTING | Task 3: Read in Daily Life (Email) (Q13–Q14)",
-    passage: `Email
-
-Please remember that applications for the study-abroad program must be submitted by June 1. Late submissions will not be reviewed. Contact the International Office for additional guidance.`,
-    questions: [
-      { id:13, text:"Why was the email sent?",
-        options:["To advertise travel opportunities","To explain program benefits","To remind students of a deadline","To describe application procedures"],
-        answer:2
-      },
-      { id:14, text:"What happens to late applications?",
-        options:["They are reviewed later","They require extra documents","They are not reviewed","They are automatically rejected permanently"],
-        answer:2
-      }
-    ]
-  },
-
-  {
-    title: "MODULE 1 — ROUTING | Task 3B: Read in Daily Life (Text Messages) (Q15–Q16)",
-    passage: `Text Messages
-
-A: Are you still coming to the group meeting at 4?
-B: I’m running late—my bus is stuck in traffic.
-A: We’re starting with the presentation slides first.
-B: Can you send me the link so I can follow along?
-A: Sure. Also, the room changed to 3B because 2A is reserved.
-B: Thanks. I’ll join as soon as I arrive.`,
-    questions: [
-      { id:15, text:"What does B ask A to do?",
-        options:["Cancel the meeting","Wait to start the presentation","Send a link to the slides","Reserve the original room"],
-        answer:2
-      },
-      { id:16, text:"What can be inferred about the meeting?",
-        options:["It was moved to a different day","It will start later than planned","The location was changed","It has been canceled"],
-        answer:2
-      }
-    ]
-  },
-
-  {
-    title: "MODULE 1 — ROUTING | Task 4: Read an Academic Passage (Q17–Q22)",
-    passage: `Studies of attention suggest that multitasking reduces performance on complex tasks. When individuals divide attention between activities, cognitive resources are spread thin, resulting in slower processing and more errors. Although people often believe they can manage multiple tasks efficiently, research consistently shows declines in accuracy and comprehension.
-
-Experiments demonstrate that task-switching, rather than simultaneous processing, explains much of the performance loss. Each switch requires mental adjustment, which consumes time and effort. Consequently, sustained focus on a single task generally leads to better outcomes, particularly for tasks requiring reasoning or memory.`,
-    questions: [
-      { id:17, text:"What is the passage mainly about?",
-        options:["Why people prefer multitasking","How multitasking affects performance","How memory improves with practice","Why reasoning tasks require time"],
-        answer:1
-      },
-      { id:18, text:"According to the passage, performance declines because",
-        options:["tasks become simpler","cognitive resources are divided","people dislike switching tasks","memory increases too quickly"],
-        answer:1
-      },
-      { id:19, text:"The word “Consequently” is closest in meaning to",
-        options:["Similarly","As a result","In contrast","Unexpectedly"],
-        answer:1
-      },
-      { id:20, text:"What can be inferred about multitasking?",
-        options:["It is usually efficient for complex tasks","People often overestimate their ability to do it well","It improves accuracy when tasks are difficult","It eliminates the need for sustained attention"],
-        answer:1
-      },
-      { id:21, text:"In the passage, task-switching is described as",
-        options:["the main source of performance loss","a benefit of divided attention","an unrelated factor","evidence that tasks are simultaneous"],
-        answer:0
-      },
-      { id:22, text:"What strategy does the author imply is generally better for complex tasks?",
-        options:["Sustained focus on one task","Frequent switching between tasks","Doing several tasks at once","Avoiding tasks that require memory"],
-        answer:0
-      }
-    ]
-  }
-];
-
-const module2_easy = [
-  {
-    title: "MODULE 2 — EASY (B2) | Task 5: Complete the Words (MCQ) (Q23–Q32)",
-    intro: "Choose the correct completion for each blank (each blank = 1 question).",
-    passage: `Economic globalization has increa___ingly influenced trade. By redu___ing barriers, companies operate more effe___ively. However, critics note that bene___its may be unevenly distributed.`,
-    questions: [
-      { id:23, text:"increa___ingly", options:["increase","increasing","increasingly","incremental"], answer:2 },
-      { id:24, text:"redu___ing",     options:["reduce","reduced","reducing","reduction"],           answer:2 },
-      { id:25, text:"effe___ively",   options:["effective","effect","effectively","efficiency"],   answer:2 },
-      { id:26, text:"bene___its",     options:["benefit","beneficial","benefits","benefitted"],   answer:2 },
-      { id:27, text:"une___en",       options:["uneven","unusual","unequaled","uneasy"],          answer:0 },
-      { id:28, text:"distri___uted",  options:["distribute","distributed","distribution","distributing"], answer:1 },
-      { id:29, text:"eco___omic",     options:["economy","economic","economical","economist"],    answer:1 },
-      { id:30, text:"regi___nal",     options:["regime","region","regional","regular"],           answer:2 },
-      { id:31, text:"imba___ance",    options:["imbalance","imbalances","ambivalence","balances"], answer:0 },
-      { id:32, text:"conc___ns",      options:["concerns","concerts","consequence","concepts"],   answer:0 },
-    ]
-  },
-  {
-    title: "MODULE 2 — EASY (B2) | Task 6: Read in Daily Life (Schedule) (Q33–Q34)",
-    passage: `Workshop Schedule
-
-Workshops run May 3–5. Attendance is optional but recommended. Participants should arrive 10 minutes early for check-in.`,
-    questions: [
-      { id:33, text:"What information does the schedule provide?",
-        options:["Workshop topics","Workshop dates","Workshop grades","Workshop instructors"],
-        answer:1
-      },
-      { id:34, text:"What is stated about attendance?",
-        options:["It is required","It is optional","It is limited to seniors only","It is only for online participants"],
-        answer:1
-      }
-    ]
-  },
-  {
-    title: "MODULE 2 — EASY (B2) | Task 7: Read in Daily Life (Website Update) (Q35–Q36)",
-    passage: `Website Update
-
-For security, students must reset their account passwords every 90 days. If you have not updated your contact information, please do so to ensure you can recover access if needed.`,
-    questions: [
-      { id:35, text:"What is the main purpose of the update?",
-        options:["To promote a new app","To explain a security requirement","To announce a tuition change","To advertise student services"],
-        answer:1
-      },
-      { id:36, text:"How often must passwords be reset?",
-        options:["Every week","Every 30 days","Every 90 days","Once per year"],
-        answer:2
-      }
-    ]
-  },
-  {
-    title: "MODULE 2 — EASY (B2) | Task 8: Read an Academic Passage (Q37–Q42)",
-    passage: `Urban parks contribute to residents’ well-being by providing spaces for recreation and relaxation. Access to green areas has been linked to reduced stress and improved physical health. Studies suggest that even short visits can have positive effects on mood and attention.
-
-City planners increasingly incorporate green spaces into development projects to improve quality of life. Although land is limited in dense cities, creative solutions such as rooftop gardens and small neighborhood parks can still offer benefits.`,
-    questions: [
-      { id:37, text:"What is the passage mainly about?",
-        options:["The history of city design","The benefits of urban parks","Problems caused by urban growth","How to reduce traffic in cities"],
-        answer:1
-      },
-      { id:38, text:"According to the passage, access to green areas is linked to",
-        options:["higher housing prices","reduced stress","more traffic","lower physical health"],
-        answer:1
-      },
-      { id:39, text:"Why do planners incorporate green spaces into development?",
-        options:["To improve quality of life","To reduce education costs","To increase land availability","To replace public services"],
-        answer:0
-      },
-      { id:40, text:"The word “Although” signals",
-        options:["a contrast","a cause","an example","a conclusion"],
-        answer:0
-      },
-      { id:41, text:"What can be inferred about dense cities?",
-        options:["They have unlimited space","Land is limited","They avoid development projects","They cannot support parks"],
-        answer:1
-      },
-      { id:42, text:"Which is mentioned as a creative solution?",
-        options:["Building taller offices","Rooftop gardens","Reducing public transportation","Closing neighborhood parks"],
-        answer:1
-      }
-    ]
-  },
-  {
-    title: "MODULE 2 — EASY (B2) | Task 8B: Read in Daily Life (Notice) (Q43–Q44)",
-    passage: `Clinic Notice
-
-The campus clinic will operate on reduced hours next week. Students who need routine appointments are encouraged to book online early, as walk-in availability may be limited.`,
-    questions: [
-      { id:43, text:"What is the main purpose of the notice?",
-        options:["To announce reduced clinic hours","To advertise a new clinic building","To explain medical insurance","To cancel all appointments"],
-        answer:0
-      },
-      { id:44, text:"What are students encouraged to do?",
-        options:["Use only walk-in visits","Book routine appointments early online","Avoid the clinic next week","Call after arriving at the clinic"],
-        answer:1
-      }
-    ]
-  }
-];
-
-const module2_hard = [
-  {
-    title: "MODULE 2 — HARD (B2+/C1-entry) | Task 5: Complete the Words (MCQ) (Q23–Q32)",
-    intro: "Choose the correct completion for each blank (each blank = 1 question).",
-    passage: `Technological innovation has funda___entally altered communication. While effici___ency has improved, critics warn of unint___ended consequences.`,
-    questions: [
-      { id:23, text:"funda___entally", options:["fundamental","fundamentally","fundamentals","fundamentalism"], answer:1 },
-      { id:24, text:"effici___ency",   options:["efficiency","efficient","efficiently","efficacy"],           answer:0 },
-      { id:25, text:"unint___ended",   options:["unintended","uninterested","unintentioned","untended"],     answer:0 },
-      { id:26, text:"conse___quences", options:["consequences","consequence","consequent","consensus"],      answer:0 },
-      { id:27, text:"perce___ption",   options:["perception","perceptive","perceive","percept"],            answer:0 },
-      { id:28, text:"rapi___dly",      options:["rapid","rapidly","rapidity","rapids"],                      answer:1 },
-      { id:29, text:"avai___ability",  options:["available","availability","availably","availabilitys"],     answer:1 },
-      { id:30, text:"misin___formation",options:["misinformation","misinformed","misinform","information"],   answer:0 },
-      { id:31, text:"eval___uate",     options:["evaluate","evaluation","evaluative","evaluator"],           answer:0 },
-      { id:32, text:"reli___ability",  options:["reliability","reliable","reliably","reliance"],             answer:0 },
-    ]
-  },
-  {
-    title: "MODULE 2 — HARD | Task 6: Read in Daily Life (Policy Notice) (Q33–Q34)",
-    passage: `Policy Notice
-
-Requests submitted without required documentation will be processed after complete submissions. To avoid delays, applicants should confirm that all supporting materials are attached before submitting.`,
-    questions: [
-      { id:33, text:"What is the main purpose of the notice?",
-        options:["To explain how requests are prioritized","To announce new documentation fees","To encourage applicants to submit late","To advertise a new office service"],
-        answer:0
-      },
-      { id:34, text:"What can be inferred if documentation is missing?",
-        options:["The request will be processed first","The request may be delayed","The request will be approved automatically","The request will be ignored permanently"],
-        answer:1
-      }
-    ]
-  },
-  {
-    title: "MODULE 2 — HARD | Task 7: Read in Daily Life (Message Chain) (Q35–Q36)",
-    passage: `Messages
-
-A: The meeting is still at 2, right?
-B: Yes, but not in 214 anymore—it's booked.
-A: Where should we go then?
-B: 310. I posted the update in the group chat.`,
-    questions: [
-      { id:35, text:"What happened to the meeting?",
-        options:["It was canceled","Its location changed","Its time was moved earlier","It was postponed to next week"],
-        answer:1
-      },
-      { id:36, text:"Why was the change made?",
-        options:["The speaker was absent","The original room was unavailable","The meeting required special equipment","The group chat was deleted"],
-        answer:1
-      }
-    ]
-  },
-  {
-    title: "MODULE 2 — HARD | Task 8: Read an Academic Passage (Q37–Q42)",
-    passage: `Scientific models simplify reality to explain complex systems. While simplification allows prediction, it also introduces limitations. Models rely on assumptions that may not hold under all conditions, and small errors can accumulate across repeated calculations.
-
-Researchers therefore treat models as tools rather than exact representations. Continuous testing and revision can improve reliability, but uncertainty remains an inherent feature of scientific explanation, especially when systems are influenced by many interacting factors.`,
-    questions: [
-      { id:37, text:"What is the passage mainly about?",
-        options:["Why scientific models are unnecessary","How models guarantee accurate predictions","The usefulness and limits of scientific models","Why prediction is impossible in science"],
-        answer:2
-      },
-      { id:38, text:"Why do models simplify reality, according to the passage?",
-        options:["To eliminate uncertainty","To allow prediction","To replace experiments","To avoid assumptions"],
-        answer:1
-      },
-      { id:39, text:"What risk is associated with models?",
-        options:["They never require assumptions","Assumptions may not always hold","They always remove errors","They prevent revision"],
-        answer:1
-      },
-      { id:40, text:"The word “therefore” signals",
-        options:["contrast","example","result","uncertainty"],
-        answer:2
-      },
-      { id:41, text:"What can be inferred about uncertainty?",
-        options:["It can be fully eliminated","It is unavoidable in complex systems","It occurs only when assumptions are correct","It decreases when models are ignored"],
-        answer:1
-      },
-      { id:42, text:"Researchers treat models primarily as",
-        options:["exact representations","tools","final answers","unnecessary abstractions"],
-        answer:1
-      }
-    ]
-  },
-  {
-    title: "MODULE 2 — HARD | Task 8B: Read in Daily Life (Web Notice) (Q43–Q44)",
-    passage: `Web Notice
-
-To reduce account misuse, access to certain online services may require additional verification during high-traffic periods. If prompted, users should follow the verification steps to continue.`,
-    questions: [
-      { id:43, text:"What is the main purpose of the notice?",
-        options:["To explain why extra verification may occur","To announce removal of online services","To promote faster internet access","To replace passwords permanently"],
-        answer:0
-      },
-      { id:44, text:"When might extra verification be required?",
-        options:["During high-traffic periods","Only on weekends","Only after midnight","Only for new users"],
-        answer:0
-      }
-    ]
-  }
-];
-
-// ==========================
-// STATE
-// ==========================
-let started = false;
-let moduleIndex = 1; // 1 or 2
-let chosenMode = "auto"; // "auto" | "easy" | "hard"
-let timeLeft = 30 * 60;
-let timerId = null;
-
-// ==========================
-// RENDER
-// ==========================
-function renderBlocks(blocks, disabled=true){
-  const root = document.getElementById("quiz");
-  root.innerHTML = "";
-
-  blocks.forEach(block => {
-    const card = document.createElement("div");
-    card.className = "card";
-
-    const h = document.createElement("h3");
-    h.style.marginTop = "0";
-    h.textContent = block.title;
-    card.appendChild(h);
-
-    if (block.intro){
-      const p = document.createElement("p");
-      p.className = "muted";
-      p.textContent = block.intro;
-      card.appendChild(p);
-    }
-
-    if (block.type === "ctest"){
-      card.appendChild(renderCtestPassage(block, disabled));
-
-      // Standalone Q9 (not in running text): we render a small input for it
-      const standalone = block.questions.find(q => q.id === 9);
-      if (standalone && standalone.standalone){
-        const box = document.createElement("div");
-        box.className = "q";
-        box.id = `qwrap-${standalone.id}`;
-
-        const title = document.createElement("h4");
-        title.innerHTML = `Q${standalone.id}. ${escapeHtml(standalone.text)} <span id="tag-${standalone.id}" class="tag" style="display:none"></span>`;
-        box.appendChild(title);
-
-        const lab = document.createElement("label");
-        lab.innerHTML = `Type missing letters: <input class="ctest-input" name="ctest_${standalone.id}" maxlength="${standalone.expectedLen}" placeholder="${"·".repeat(standalone.expectedLen)}" ${disabled ? "disabled":""}>`;
-        box.appendChild(lab);
-
-        const review = document.createElement("div");
-        review.className = "review-line";
-        review.id = `review-${standalone.id}`;
-        review.style.display = "none";
-        box.appendChild(review);
-
-        card.appendChild(box);
-      }
-
-      // Hidden shells for Q1–Q10 to reuse review/tag UI
-      block.questions.forEach(q => {
-        if (q.id === 9) return; // already rendered
-        const qDiv = document.createElement("div");
-        qDiv.className = "q";
-        qDiv.id = `qwrap-${q.id}`;
-
-        const title = document.createElement("h4");
-        title.innerHTML = `Q${q.id}. ${escapeHtml(q.text)} <span id="tag-${q.id}" class="tag" style="display:none"></span>`;
-        qDiv.appendChild(title);
-
-        const review = document.createElement("div");
-        review.className = "review-line";
-        review.id = `review-${q.id}`;
-        review.style.display = "none";
-        qDiv.appendChild(review);
-
-        card.appendChild(qDiv);
-      });
-
-    } else {
-      if (block.passage){
-        const pre = document.createElement("div");
-        pre.className = "passage";
-        pre.textContent = block.passage;
-        card.appendChild(pre);
-      }
-
-      block.questions.forEach(q => {
-        const qDiv = document.createElement("div");
-        qDiv.className = "q";
-        qDiv.id = `qwrap-${q.id}`;
-
-        const title = document.createElement("h4");
-        title.innerHTML = `Q${q.id}. ${escapeHtml(q.text)} <span id="tag-${q.id}" class="tag" style="display:none"></span>`;
-        qDiv.appendChild(title);
-
-        q.options.forEach((opt, idx) => {
-          const lab = document.createElement("label");
-          lab.innerHTML = `
-            <input type="radio" name="q${q.id}" value="${idx}" ${disabled ? "disabled":""}>
-            ${escapeHtml(opt)}
-          `;
-          qDiv.appendChild(lab);
-        });
-
-        const review = document.createElement("div");
-        review.className = "review-line";
-        review.id = `review-${q.id}`;
-        review.style.display = "none";
-        qDiv.appendChild(review);
-
-        card.appendChild(qDiv);
-      });
-    }
-
-    root.appendChild(card);
-  });
-}
-
-function updatePills(){
-  document.getElementById("modulePill").textContent = started ? `Module: ${moduleIndex}` : "Module: not started";
-  const mp = document.getElementById("modePill");
-  if (chosenMode === "auto") mp.textContent = "Module 2: AUTO";
-  else mp.textContent = `Module 2: ${chosenMode.toUpperCase()}`;
-}
-
-// ==========================
-// COMPLETION CHECKS
-// ==========================
-function allAnsweredInBlocks(blocks){
-  for (const b of blocks){
-    for (const q of b.questions){
-      if (b.type === "ctest"){
-        // C-test questions use ctest_<id> input
-        const correct = (typeof q.answer === "string") ? q.answer : "";
-        // for Q1–Q10, require exact length (ETS-like); for Q9 also exact length
-        const user = getCtestUserAnswer(q.id);
-        if (user.length !== correct.length) return false;
-      } else {
-        const chosen = document.querySelector(`input[name="q${q.id}"]:checked`);
-        if (!chosen) return false;
-      }
-    }
-  }
-  return true;
-}
-
-// ==========================
-// SCORING
-// ==========================
-function scoreBlocks(blocks){
-  let correct = 0;
-  let total = 0;
-
-  for (const {block, q} of collectQuestions(blocks)){
-    total++;
-    if (block.type === "ctest"){
-      const user = getCtestUserAnswer(q.id).toLowerCase();
-      const ans  = String(q.answer).toLowerCase();
-      if (user === ans) correct++;
-    } else {
-      const chosen = document.querySelector(`input[name="q${q.id}"]:checked`);
-      const idx = chosen ? Number(chosen.value) : -1;
-      if (idx === q.answer) correct++;
-    }
-  }
-  return { correct, total };
-}
-
-function decideModule2Mode(){
-  const s = scoreBlocks(module1);
-  const mode = (s.correct >= HARD_THRESHOLD) ? "hard" : "easy";
-  return { mode, score: s };
-}
-
-function getModule2Blocks(mode){
-  return mode === "hard" ? module2_hard : module2_easy;
-}
-
-// ==========================
-// FLOW
-// ==========================
-function start(){
-  if (started) return;
-  started = true;
-  moduleIndex = 1;
-  chosenMode = "auto";
-
-  document.getElementById("result").style.display = "none";
-  document.getElementById("result").innerHTML = "";
-
-  timeLeft = 30*60;
-  document.getElementById("timer").textContent = formatTime(timeLeft);
-
-  document.getElementById("startBtn").disabled = true;
-  document.getElementById("nextModuleBtn").disabled = false;
-  document.getElementById("submitBtn").disabled = true;
-
-  renderBlocks(module1, false);
-  startTimer();
-  updatePills();
-  window.scrollTo({top:0, behavior:"smooth"});
-}
-
-function goToModule2(){
-  if (!started || moduleIndex !== 1) return;
-
-  if (!allAnsweredInBlocks(module1)){
-    alert("Please answer all Module 1 questions before moving to Module 2.\n(For C-test items: type the full missing letters.)");
-    return;
-  }
-
-  const decision = decideModule2Mode();
-  chosenMode = decision.mode;
-  moduleIndex = 2;
-
-  const blocks2 = getModule2Blocks(chosenMode);
-  renderBlocks(blocks2, false);
-
-  const root = document.getElementById("quiz");
-  const banner = document.createElement("div");
-  banner.className = "warn";
-  banner.innerHTML = `<b>Auto-switch:</b> Module 1 score = <b>${decision.score.correct}/${decision.score.total}</b>. Module 2 selected: <b>${chosenMode.toUpperCase()}</b>.`;
-  root.prepend(banner);
-
-  document.getElementById("submitBtn").disabled = false;
-  document.getElementById("nextModuleBtn").disabled = true;
-
-  updatePills();
-  window.scrollTo({top:0, behavior:"smooth"});
-}
-
-function submitQuiz(auto=false){
-  if (!started) return;
-
-  if (moduleIndex !== 2){
-    alert("Please click “Next module” to complete Module 2 before submitting.");
-    return;
-  }
-
-  const blocks2 = getModule2Blocks(chosenMode);
-
-  if (!allAnsweredInBlocks(blocks2)){
-    alert("Please answer all Module 2 questions before submitting.");
-    return;
-  }
-
-  started = false;
-  clearInterval(timerId);
-  setInputsDisabled(true);
-
-  document.getElementById("startBtn").disabled = false;
-  document.getElementById("nextModuleBtn").disabled = true;
-  document.getElementById("submitBtn").disabled = true;
-
-  const allBlocks = [...module1, ...blocks2];
-
-  // Score + review
-  let correctCount = 0;
-  let totalCount = 0;
-
-  for (const {block, q} of collectQuestions(allBlocks)){
-    totalCount++;
-
-    let isCorrect = false;
-    let chosenText = "";
-    let correctText = "";
-
-    if (block.type === "ctest"){
-      const user = getCtestUserAnswer(q.id);
-      const ans = String(q.answer);
-      chosenText = user.length ? user : "(no answer)";
-      correctText = ans;
-      isCorrect = user.toLowerCase() === ans.toLowerCase();
-    } else {
-      const chosen = document.querySelector(`input[name="q${q.id}"]:checked`);
-      const idx = chosen ? Number(chosen.value) : -1;
-      chosenText = idx >= 0 ? q.options[idx] : "(no answer)";
-      correctText = q.options[q.answer];
-      isCorrect = idx === q.answer;
-    }
-
-    if (isCorrect) correctCount++;
-
-    const tag = document.getElementById(`tag-${q.id}`);
-    if (tag){
-      tag.style.display = "inline-block";
-      tag.className = `tag ${isCorrect ? "ok":"bad"}`;
-      tag.textContent = isCorrect ? "Correct" : "Incorrect";
-    }
-
-    const review = document.getElementById(`review-${q.id}`);
-    if (review){
-      review.style.display = "block";
-      review.innerHTML = `<b>Your answer:</b> ${escapeHtml(chosenText)}<br><b>Correct answer:</b> ${escapeHtml(correctText)}`;
-    }
-  }
-
-  const res = document.getElementById("result");
-  res.style.display = "block";
-  res.innerHTML = `
-    <h3 style="margin-top:0">Result</h3>
-    <div class="split">
-      <div>
-        <p><b>Score:</b> ${correctCount} / ${totalCount}</p>
-        <p class="muted"><b>Module 2 used:</b> ${chosenMode.toUpperCase()} | <b>Threshold:</b> ${HARD_THRESHOLD}/22</p>
-        <p class="muted">${auto ? "Time is up — your answers were submitted automatically." : ""}</p>
-      </div>
-      <div>
-        <p class="muted" style="margin:0"><b>Review:</b> scroll to see correct answers for each question.</p>
-      </div>
-    </div>
-  `;
-  res.scrollIntoView({behavior:"smooth", block:"start"});
-  updatePills();
-}
-
-function resetAll(){
-  clearInterval(timerId);
-  started = false;
-  moduleIndex = 1;
-  chosenMode = "auto";
-
-  timeLeft = 30*60;
-  document.getElementById("timer").textContent = formatTime(timeLeft);
-
-  // Clear MCQ selections
-  document.querySelectorAll('input[type="radio"]').forEach(i => i.checked = false);
-  // Clear C-test inputs
-  document.querySelectorAll('input.ctest-input').forEach(i => i.value = "");
-
-  // Hide result
-  const res = document.getElementById("result");
-  res.style.display = "none";
-  res.innerHTML = "";
-
-  // Reset buttons
-  document.getElementById("startBtn").disabled = false;
-  document.getElementById("nextModuleBtn").disabled = true;
-  document.getElementById("submitBtn").disabled = true;
-
-  renderBlocks(module1, true);
-  updatePills();
-  window.scrollTo({top:0, behavior:"smooth"});
-}
-
-// ==========================
-// UI WIRING
-// ==========================
-document.getElementById("startBtn").addEventListener("click", start);
-document.getElementById("nextModuleBtn").addEventListener("click", goToModule2);
-document.getElementById("submitBtn").addEventListener("click", () => submitQuiz(false));
-document.getElementById("resetBtn").addEventListener("click", resetAll);
-
-// init
-(function init(){
-  document.getElementById("timer").textContent = formatTime(timeLeft);
-  renderBlocks(module1, true);
-  updatePills();
-})();
-</script>
-
+    <script>
+        // Timer variables
+        let timeLeft = 18 * 60; // 18 minutes in seconds
+        let timerInterval;
+        let currentModule = 1;
+        
+        // Score tracking
+        let module1Score = 0;
+        let module2Score = 0;
+        let module1Submitted = false;
+        let module2Submitted = false;
+        
+        // DOM Elements
+        const timerElement = document.getElementById('time');
+        const module1Btn = document.getElementById('btn-module1');
+        const module2Btn = document.getElementById('btn-module2');
+        const module1Content = document.getElementById('module1');
+        const module2Content = document.getElementById('module2');
+        const submitModule1Btn = document.getElementById('submit-module1');
+        const submitModule2Btn = document.getElementById('submit-module2');
+        const resultsSection = document.getElementById('results');
+        const finalScoreElement = document.getElementById('final-score');
+        const scoreBreakdownElement = document.getElementById('score-breakdown');
+        const feedbackElement = document.getElementById('feedback');
+        const retryBtn = document.getElementById('retry-test');
+        
+        // Initialize the test
+        function initTest() {
+            startTimer();
+            setupEventListeners();
+        }
+        
+        // Timer functions
+        function startTimer() {
+            clearInterval(timerInterval);
+            updateTimerDisplay();
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    if (currentModule === 1 && !module1Submitted) {
+                        alert("Time's up for Module 1! Automatically submitting...");
+                        submitModule1();
+                    } else if (currentModule === 2 && !module2Submitted) {
+                        alert("Time's up for Module 2! Automatically submitting...");
+                        submitModule2();
+                    }
+                }
+            }, 1000);
+        }
+        
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Change color when time is running low
+            if (timeLeft < 300) { // Less than 5 minutes
+                timerElement.parentElement.style.backgroundColor = '#e74c3c';
+            } else if (timeLeft < 600) { // Less than 10 minutes
+                timerElement.parentElement.style.backgroundColor = '#f39c12';
+            }
+        }
+        
+        function resetTimer() {
+            timeLeft = 18 * 60;
+            updateTimerDisplay();
+            timerElement.parentElement.style.backgroundColor = '#2c3e50';
+        }
+        
+        // Module switching
+        function switchModule(moduleNumber) {
+            currentModule = moduleNumber;
+            
+            // Update button states
+            module1Btn.classList.toggle('active', moduleNumber === 1);
+            module2Btn.classList.toggle('active', moduleNumber === 2);
+            
+            // Update content visibility
+            module1Content.classList.toggle('active', moduleNumber === 1);
+            module2Content.classList.toggle('active', moduleNumber === 2);
+            
+            // Reset timer when switching modules
+            resetTimer();
+            startTimer();
+            
+            // Disable module 1 button if already submitted
+            if (module1Submitted) {
+                module1Btn.disabled = true;
+                module1Btn.style.opacity = '0.6';
+                module1Btn.style.cursor = 'not-allowed';
+            }
+            
+            // Show warning if trying to go back to module 1 after starting module 2
+            if (moduleNumber === 1 && module2Submitted) {
+                alert("You cannot return to Module 1 after starting Module 2.");
+                switchModule(2);
+                return;
+            }
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // Module selection
+            module1Btn.addEventListener('click', () => switchModule(1));
+            module2Btn.addEventListener('click', () => {
+                if (!module1Submitted) {
+                    if (confirm("You haven't submitted Module 1 yet. Do you want to submit it and proceed to Module 2?")) {
+                        submitModule1();
+                        switchModule(2);
+                    }
+                } else {
+                    switchModule(2);
+                }
+            });
+            
+            // Submit buttons
+            submitModule1Btn.addEventListener('click', submitModule1);
+            submitModule2Btn.addEventListener('click', submitModule2);
+            
+            // Retry button
+            retryBtn.addEventListener('click', resetTest);
+            
+            // Multiple choice questions
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const question = this.closest('.question');
+                    const options = question.querySelectorAll('.option');
+                    
+                    // Remove selected class from all options in this question
+                    options.forEach(opt => opt.classList.remove('selected'));
+                    
+                    // Add selected class to clicked option
+                    this.classList.add('selected');
+                    
+                    // Store the selected value
+                    this.closest('.question').dataset.selected = this.dataset.value;
+                });
+            });
+            
+            // C-test input handling
+            document.querySelectorAll('.c-blank input').forEach(input => {
+                input.addEventListener('input', function() {
+                    this.value = this.value.toLowerCase();
+                    
+                    // Auto-advance to next input
+                    if (this.value.length >= this.maxLength) {
+                        const nextInput = this.parentElement.nextElementSibling?.querySelector('input');
+                        if (nextInput) {
+                            nextInput.focus();
+                        }
+                    }
+                });
+                
+                // Allow navigation with arrow keys
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'ArrowLeft') {
+                        const prevInput = this.parentElement.previousElementSibling?.querySelector('input');
+                        if (prevInput) {
+                            prevInput.focus();
+                        }
+                    } else if (e.key === 'ArrowRight') {
+                        const nextInput = this.parentElement.nextElementSibling?.querySelector('input');
+                        if (nextInput) {
+                            nextInput.focus();
+                        }
+                    }
+                });
+            });
+        }
+        
+        // Submit Module 1
+        function submitModule1() {
+            module1Score = calculateModuleScore(1);
+            module1Submitted = true;
+            
+            // Disable inputs in module 1
+            disableModuleInputs(1);
+            
+            // Show results for module 1
+            showModuleResults(1, module1Score);
+            
+            // Enable module 2 button
+            module2Btn.disabled = false;
+            module2Btn.style.opacity = '1';
+            module2Btn.style.cursor = 'pointer';
+            
+            // Switch to module 2 automatically
+            switchModule(2);
+        }
+        
+        // Submit Module 2
+        function submitModule2() {
+            module2Score = calculateModuleScore(2);
+            module2Submitted = true;
+            
+            // Disable inputs in module 2
+            disableModuleInputs(2);
+            
+            // Show final results
+            showFinalResults();
+        }
+        
+        // Calculate score for a module
+        function calculateModuleScore(moduleNumber) {
+            let score = 0;
+            const moduleElement = document.getElementById(`module${moduleNumber}`);
+            
+            // Calculate C-test score (questions 1-10)
+            const cBlanks = moduleElement.querySelectorAll('.c-blank');
+            cBlanks.forEach(blank => {
+                const input = blank.querySelector('input');
+                const answer = blank.dataset.answer;
+                
+                if (input.value.toLowerCase() === answer.toLowerCase()) {
+                    score++;
+                    blank.classList.add('correct');
+                } else if (input.value.trim() !== '') {
+                    blank.classList.add('incorrect');
+                }
+            });
+            
+            // Calculate multiple choice score (questions 11-20)
+            const questions = moduleElement.querySelectorAll('.question.mcq');
+            questions.forEach((question, index) => {
+                const selectedValue = question.dataset.selected;
+                const correctValue = question.dataset.correct;
+                
+                if (selectedValue === correctValue) {
+                    score++;
+                    
+                    // Mark correct answer
+                    question.querySelectorAll('.option').forEach(option => {
+                        if (option.dataset.value === correctValue) {
+                            option.classList.add('correct');
+                        }
+                    });
+                } else if (selectedValue) {
+                    // Mark incorrect answer
+                    question.querySelectorAll('.option').forEach(option => {
+                        if (option.dataset.value === selectedValue) {
+                            option.classList.add('incorrect');
+                        }
+                        if (option.dataset.value === correctValue) {
+                            option.classList.add('correct');
+                        }
+                    });
+                }
+            });
+            
+            return score;
+        }
+        
+        // Disable inputs in a module
+        function disableModuleInputs(moduleNumber) {
+            const moduleElement = document.getElementById(`module${moduleNumber}`);
+            
+            // Disable C-test inputs
+            moduleElement.querySelectorAll('.c-blank input').forEach(input => {
+                input.disabled = true;
+            });
+            
+            // Disable MCQ options
+            moduleElement.querySelectorAll('.option').forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+        }
+        
+        // Show module results
+        function showModuleResults(moduleNumber, score) {
+            alert(`Module ${moduleNumber} submitted!\nYour score: ${score}/20`);
+        }
+        
+        // Show final results
+        function showFinalResults() {
+            const totalScore = module1Score + module2Score;
+            const percentage = (totalScore / 40) * 100;
+            
+            // Update final score
+            finalScoreElement.textContent = `Score: ${totalScore}/40 (${percentage.toFixed(1)}%)`;
+            
+            // Update score breakdown
+            scoreBreakdownElement.innerHTML = `
+                <div class="score-item">
+                    <div>Module 1</div>
+                    <div class="${module1Score >= 15 ? 'correct-answer' : 'incorrect-answer'}">${module1Score}/20</div>
+                </div>
+                <div class="score-item">
+                    <div>Module 2</div>
+                    <div class="${module2Score >= 15 ? 'correct-answer' : 'incorrect-answer'}">${module2Score}/20</div>
+                </div>
+                <div class="score-item">
+                    <div>C-Test (1-10 each module)</div>
+                    <div>${(module1Score + module2Score - 20)}/20</div>
+                </div>
+                <div class="score-item">
+                    <div>Reading Comprehension</div>
+                    <div>20/20</div>
+                </div>
+            `;
+            
+            // Provide feedback
+            let feedback = '';
+            if (percentage >= 85) {
+                feedback = '<strong>Excellent!</strong> You have a strong command of English reading comprehension.';
+            } else if (percentage >= 70) {
+                feedback = '<strong>Good job!</strong> Your reading skills are solid, but there\'s room for improvement.';
+            } else if (percentage >= 50) {
+                feedback = '<strong>Fair.</strong> You should focus more on vocabulary and reading practice.';
+            } else {
+                feedback = '<strong>Needs improvement.</strong> Consider practicing with simpler texts and building vocabulary.';
+            }
+            
+            feedback += '<br><br>Remember: TOEFL iBT Reading requires both vocabulary knowledge and the ability to understand main ideas, details, and inferences in academic texts.';
+            
+            feedbackElement.innerHTML = feedback;
+            
+            // Show results section
+            resultsSection.classList.add('active');
+            
+            // Stop timer
+            clearInterval(timerInterval);
+        }
+        
+        // Reset the entire test
+        function resetTest() {
+            // Reset scores
+            module1Score = 0;
+            module2Score = 0;
+            module1Submitted = false;
+            module2Submitted = false;
+            
+            // Clear all inputs
+            document.querySelectorAll('.c-blank input').forEach(input => {
+                input.value = '';
+                input.disabled = false;
+                input.parentElement.classList.remove('correct', 'incorrect');
+            });
+            
+            // Clear MCQ selections
+            document.querySelectorAll('.question').forEach(question => {
+                delete question.dataset.selected;
+                question.querySelectorAll('.option').forEach(option => {
+                    option.classList.remove('selected', 'correct', 'incorrect');
+                    option.style.pointerEvents = 'auto';
+                });
+            });
+            
+            // Reset UI
+            module1Btn.disabled = false;
+            module1Btn.style.opacity = '1';
+            module1Btn.style.cursor = 'pointer';
+            module2Btn.disabled = false;
+            module2Btn.style.opacity = '1';
+            module2Btn.style.cursor = 'pointer';
+            
+            // Hide results
+            resultsSection.classList.remove('active');
+            
+            // Switch back to module 1
+            switchModule(1);
+        }
+        
+        // Start the test when page loads
+        window.addEventListener('DOMContentLoaded', initTest);
+    </script>
 </body>
 </html>
