@@ -1,679 +1,707 @@
-(cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/index.html b/index.html
-index 2efe43de7a91fec8475dbc423f59a18c1d4f1142..489d54bea6ca99c843bf04fc68b167cf15f14175 100644
---- a/index.html
-+++ b/index.html
-@@ -1,191 +1,603 @@
- <!doctype html>
- <html lang="en">
- <head>
-   <meta charset="utf-8" />
-   <meta name="viewport" content="width=device-width,initial-scale=1" />
--  <title>TOEFL Reading Mock (ETS-aligned)</title>
-+  <title>TOEFL iBT Reading (2026) — ETS-aligned Mock (Student + Review)</title>
-   <style>
--    body{font-family:system-ui,Arial,sans-serif;max-width:900px;margin:24px auto;padding:0 16px;line-height:1.4}
--    .card{border:1px solid #ddd;border-radius:12px;padding:16px;margin:12px 0}
--    .muted{color:#666}
-+    :root{--bd:#e5e7eb;--muted:#6b7280;--ok:#10b981;--bad:#ef4444}
-+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:980px;margin:24px auto;padding:0 16px;line-height:1.45}
-+    .sticky{position:sticky;top:0;background:#fff;padding:10px 0 12px;border-bottom:1px solid var(--bd);z-index:20}
-     .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
--    button{padding:10px 14px;border-radius:10px;border:1px solid #333;background:#111;color:#fff;cursor:pointer}
--    button.secondary{background:#fff;color:#111;border:1px solid #aaa}
--    .q{margin:14px 0}
-+    h2{margin:0;font-size:18px}
-+    .muted{color:var(--muted)}
-+    .danger{color:#b00020;font-weight:800}
-+    .card{border:1px solid var(--bd);border-radius:14px;padding:16px;margin:12px 0}
-+    .passage{white-space:pre-wrap;background:#f8fafc;border:1px solid var(--bd);padding:12px;border-radius:12px}
-+    button{padding:10px 14px;border-radius:12px;border:1px solid #111;background:#111;color:#fff;cursor:pointer}
-+    button.secondary{background:#fff;color:#111;border:1px solid #9ca3af}
-+    button:disabled{opacity:.5;cursor:not-allowed}
-+    .q{margin:14px 0;padding:12px;border-radius:12px;border:1px solid var(--bd)}
-+    .q h4{margin:0 0 10px 0;font-size:15px}
-     label{display:block;margin:6px 0;cursor:pointer}
--    .sticky{position:sticky;top:0;background:#fff;padding:10px 0;border-bottom:1px solid #eee;z-index:10}
--    .danger{color:#b00020;font-weight:600}
--    .hidden{display:none}
-+    .tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--bd);margin-left:8px}
-+    .ok{background:#ecfdf5;border-color:var(--ok);color:#065f46}
-+    .bad{background:#fef2f2;border-color:var(--bad);color:#7f1d1d}
-+    .review-line{margin-top:10px;font-size:13px}
-+    .review-line b{font-weight:800}
-+    .split{display:grid;grid-template-columns:1fr;gap:10px}
-+    @media (min-width: 820px){ .split{grid-template-columns:1fr 1fr} }
-+    .pill{display:inline-block;font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--bd);background:#fff}
-   </style>
- </head>
- <body>
- 
- <div class="sticky">
-   <div class="row">
--    <h2 style="margin:0">TOEFL Reading Mock (ETS-aligned, 2026)</h2>
-+    <h2>TOEFL iBT Reading (2026) — ETS-aligned Mock</h2>
-+    <span id="modePill" class="pill muted">Module 2: not selected</span>
-     <div style="margin-left:auto" class="row">
-       <span class="muted">Time left:</span>
-       <span id="timer" class="danger">30:00</span>
-       <button id="startBtn">Start</button>
-       <button id="submitBtn" class="secondary" disabled>Submit</button>
-+      <button id="resetBtn" class="secondary">Reset</button>
-     </div>
-   </div>
- </div>
- 
- <div class="card">
-   <p><b>Instructions</b></p>
-   <ul>
--    <li>Time limit: 30 minutes</li>
-+    <li>Time limit: <b>30 minutes</b></li>
-     <li>No dictionaries or translation tools</li>
--    <li>Answer all questions based only on the text</li>
-+    <li>After submission, you will see a <b>review</b> (correct answers)</li>
-   </ul>
-+  <p class="muted" style="margin-top:10px">
-+    Select Module 2 difficulty by editing one line in the code:
-+    <code>const MODULE2_MODE = "easy";</code> or <code>"hard"</code>.
-+  </p>
- </div>
- 
- <div id="quiz"></div>
- 
--<div id="result" class="card hidden"></div>
-+<div id="result" class="card" style="display:none"></div>
- 
- <script>
--const quizData = [
-+/**
-+ * ==========================
-+ * CONFIG: choose Module 2 path
-+ * ==========================
-+ * "easy" = B2 (softer ETS)
-+ * "hard" = B2+/C1-entry (hard module)
-+ */
-+const MODULE2_MODE = "easy"; // <-- change to "hard" when needed
-+
-+// ==========================
-+// DATA (ETS-aligned, 44 items)
-+// ==========================
-+
-+const module1 = [
-   {
--    section: "Module 1 — Complete the Words",
--    intro: "Choose the correct word completion for each blank.",
-+    title: "MODULE 1 — ROUTING | Task 1: Complete the Words (Q1–Q10)",
-+    intro: "Choose the correct completion for each blank (each blank = 1 question).",
-+    passage: `Archaeological evidence preserved in caves for thousands of years indicates that early humans engaged in activities beyond basic survival. We mi___ think that prehistoric people focused only on immediate needs. How___er, records show that artistic expression was highly valued and played a significant role in strengthening group ide___ity and social cohesion.`,
-     questions: [
--      { id: 1, text: "mi___", options: ["might","mind","minor","mile"], answer: 0 },
--      { id: 2, text: "How___er", options: ["However","Howsoever","Howeverly","Howover"], answer: 0 },
--      { id: 3, text: "rec___ds", options: ["records","regards","rewards","results"], answer: 0 },
--      // Add Q4–Q10...
-+      { id: 1,  text: "mi___",         options: ["might","mind","minor","mile"],                                  answer: 0 },
-+      { id: 2,  text: "How___er",      options: ["However","Howsoever","Howeverly","Howover"],                   answer: 0 },
-+      { id: 3,  text: "rec___ds",      options: ["records","regards","rewards","results"],                       answer: 0 },
-+      { id: 4,  text: "arti___ic",     options: ["artistic","article","artificial","articulate"],                answer: 0 },
-+      { id: 5,  text: "valu___d",      options: ["value","valued","valuable","valuing"],                        answer: 1 },
-+      { id: 6,  text: "signi___ant",   options: ["signify","signal","significant","signatory"],                 answer: 2 },
-+      { id: 7,  text: "streng___ening",options: ["strengthen","strengthened","strengthening","strength"],       answer: 2 },
-+      { id: 8,  text: "ide___ity",     options: ["identity","identical","identification","identify"],           answer: 0 },
-+      { id: 9,  text: "soci___al",     options: ["society","social","socialize","socialism"],                   answer: 1 },
-+      { id:10,  text: "cohe___ion",    options: ["cohesion","coercion","collision","cooperation"],              answer: 0 },
-     ]
-   },
-+
-   {
--    section: "Module 1 — Read in Daily Life",
--    intro: "Answer based on the text.",
-+    title: "MODULE 1 — ROUTING | Task 2: Read in Daily Life (Notice) (Q11–Q12)",
-     passage: `Campus Notice
- 
--Due to scheduled maintenance, access to the university learning platform will be unavailable on May 6 from 2:00 a.m. to 6:00 a.m.
--Students are advised to download course materials in advance to avoid disruption.`,
-+Due to scheduled maintenance, access to the university learning platform will be unavailable on May 6 from 2:00 a.m. to 6:00 a.m. Students are advised to download course materials in advance to avoid disruption.`,
-+    questions: [
-+      { id:11, text:"What is the main purpose of the notice?",
-+        options:["To promote a new platform","To announce temporary service unavailability","To explain platform features","To report system errors"],
-+        answer:1
-+      },
-+      { id:12, text:"What are students advised to do?",
-+        options:["Contact instructors","Delay coursework","Download materials beforehand","Avoid using the platform permanently"],
-+        answer:2
-+      }
-+    ]
-+  },
-+
-+  {
-+    title: "MODULE 1 — ROUTING | Task 3: Read in Daily Life (Email) (Q13–Q14)",
-+    passage: `Email
-+
-+Please remember that applications for the study-abroad program must be submitted by June 1. Late submissions will not be reviewed. Contact the International Office for additional guidance.`,
-+    questions: [
-+      { id:13, text:"Why was the email sent?",
-+        options:["To advertise travel opportunities","To explain program benefits","To remind students of a deadline","To describe application procedures"],
-+        answer:2
-+      },
-+      { id:14, text:"What happens to late applications?",
-+        options:["They are reviewed later","They require extra documents","They are not reviewed","They are automatically rejected permanently"],
-+        answer:2
-+      }
-+    ]
-+  },
-+
-+  {
-+    title: "MODULE 1 — ROUTING | Task 3B: Read in Daily Life (Text Messages) (Q15–Q16)",
-+    passage: `Text Messages
-+
-+A: Are you still coming to the group meeting at 4?
-+B: I’m running late—my bus is stuck in traffic.
-+A: We’re starting with the presentation slides first.
-+B: Can you send me the link so I can follow along?
-+A: Sure. Also, the room changed to 3B because 2A is reserved.
-+B: Thanks. I’ll join as soon as I arrive.`,
-+    questions: [
-+      { id:15, text:"What does B ask A to do?",
-+        options:["Cancel the meeting","Wait to start the presentation","Send a link to the slides","Reserve the original room"],
-+        answer:2
-+      },
-+      { id:16, text:"What can be inferred about the meeting?",
-+        options:["It was moved to a different day","It will start later than planned","The location was changed","It has been canceled"],
-+        answer:2
-+      }
-+    ]
-+  },
-+
-+  {
-+    title: "MODULE 1 — ROUTING | Task 4: Read an Academic Passage (Q17–Q22)",
-+    passage: `Studies of attention suggest that multitasking reduces performance on complex tasks. When individuals divide attention between activities, cognitive resources are spread thin, resulting in slower processing and more errors. Although people often believe they can manage multiple tasks efficiently, research consistently shows declines in accuracy and comprehension.
-+
-+Experiments demonstrate that task-switching, rather than simultaneous processing, explains much of the performance loss. Each switch requires mental adjustment, which consumes time and effort. Consequently, sustained focus on a single task generally leads to better outcomes, particularly for tasks requiring reasoning or memory.`,
-+    questions: [
-+      { id:17, text:"What is the passage mainly about?",
-+        options:["Why people prefer multitasking","How multitasking affects performance","How memory improves with practice","Why reasoning tasks require time"],
-+        answer:1
-+      },
-+      { id:18, text:"According to the passage, performance declines because",
-+        options:["tasks become simpler","cognitive resources are divided","people dislike switching tasks","memory increases too quickly"],
-+        answer:1
-+      },
-+      { id:19, text:"The word “Consequently” is closest in meaning to",
-+        options:["Similarly","As a result","In contrast","Unexpectedly"],
-+        answer:1
-+      },
-+      { id:20, text:"What can be inferred about multitasking?",
-+        options:["It is usually efficient for complex tasks","People often overestimate their ability to do it well","It improves accuracy when tasks are difficult","It eliminates the need for sustained attention"],
-+        answer:1
-+      },
-+      { id:21, text:"In the passage, task-switching is described as",
-+        options:["the main source of performance loss","a benefit of divided attention","an unrelated factor","evidence that tasks are simultaneous"],
-+        answer:0
-+      },
-+      { id:22, text:"What strategy does the author imply is generally better for complex tasks?",
-+        options:["Sustained focus on one task","Frequent switching between tasks","Doing several tasks at once","Avoiding tasks that require memory"],
-+        answer:0
-+      }
-+    ]
-+  }
-+];
-+
-+const module2_easy = [
-+  {
-+    title: "MODULE 2 (EASY) | Task 5: Complete the Words (Q23–Q32)",
-+    intro: "Choose the correct completion for each blank (each blank = 1 question).",
-+    passage: `Economic globalization has increa___ingly influenced trade. By redu___ing barriers, companies operate more effe___ively. However, critics note that bene___its may be unevenly distributed.`,
-+    questions: [
-+      { id:23, text:"increa___ingly", options:["increase","increasing","increasingly","incremental"], answer:2 },
-+      { id:24, text:"redu___ing",     options:["reduce","reduced","reducing","reduction"],           answer:2 },
-+      { id:25, text:"effe___ively",   options:["effective","effect","effectively","efficiency"],   answer:2 },
-+      { id:26, text:"bene___its",     options:["benefit","beneficial","benefits","benefitted"],   answer:2 },
-+      { id:27, text:"une___en",       options:["uneven","unusual","unequaled","uneasy"],          answer:0 },
-+      { id:28, text:"distri___uted",  options:["distribute","distributed","distribution","distributing"], answer:1 },
-+      { id:29, text:"eco___omic",     options:["economy","economic","economical","economist"],    answer:1 },
-+      { id:30, text:"regi___nal",     options:["regime","region","regional","regular"],           answer:2 },
-+      { id:31, text:"imba___ance",    options:["imbalance","imbalances","ambivalence","balances"], answer:0 },
-+      { id:32, text:"conc___ns",      options:["concerns","concerts","consequence","concepts"],   answer:0 },
-+    ]
-+  },
-+  {
-+    title: "MODULE 2 (EASY) | Task 6: Read in Daily Life (Schedule) (Q33–Q34)",
-+    passage: `Workshop Schedule
-+
-+Workshops run May 3–5. Attendance is optional but recommended. Participants should arrive 10 minutes early for check-in.`,
-     questions: [
--      { id: 11, text: "What is the main purpose of the notice?",
--        options: ["To promote a new platform","To announce temporary service unavailability","To explain platform features","To report system errors"],
--        answer: 1
-+      { id:33, text:"What information does the schedule provide?",
-+        options:["Workshop topics","Workshop dates","Workshop grades","Workshop instructors"],
-+        answer:1
-+      },
-+      { id:34, text:"What is stated about attendance?",
-+        options:["It is required","It is optional","It is limited to seniors only","It is only for online participants"],
-+        answer:1
-+      }
-+    ]
-+  },
-+  {
-+    title: "MODULE 2 (EASY) | Task 7: Read in Daily Life (Website Update) (Q35–Q36)",
-+    passage: `Website Update
-+
-+For security, students must reset their account passwords every 90 days. If you have not updated your contact information, please do so to ensure you can recover access if needed.`,
-+    questions: [
-+      { id:35, text:"What is the main purpose of the update?",
-+        options:["To promote a new app","To explain a security requirement","To announce a tuition change","To advertise student services"],
-+        answer:1
-+      },
-+      { id:36, text:"How often must passwords be reset?",
-+        options:["Every week","Every 30 days","Every 90 days","Once per year"],
-+        answer:2
-+      }
-+    ]
-+  },
-+  {
-+    title: "MODULE 2 (EASY) | Task 8: Read an Academic Passage (Q37–Q42)",
-+    passage: `Urban parks contribute to residents’ well-being by providing spaces for recreation and relaxation. Access to green areas has been linked to reduced stress and improved physical health. Studies suggest that even short visits can have positive effects on mood and attention.
-+
-+City planners increasingly incorporate green spaces into development projects to improve quality of life. Although land is limited in dense cities, creative solutions such as rooftop gardens and small neighborhood parks can still offer benefits.`,
-+    questions: [
-+      { id:37, text:"What is the passage mainly about?",
-+        options:["The history of city design","The benefits of urban parks","Problems caused by urban growth","How to reduce traffic in cities"],
-+        answer:1
-+      },
-+      { id:38, text:"According to the passage, access to green areas is linked to",
-+        options:["higher housing prices","reduced stress","more traffic","lower physical health"],
-+        answer:1
-+      },
-+      { id:39, text:"Why do planners incorporate green spaces into development?",
-+        options:["To improve quality of life","To reduce education costs","To increase land availability","To replace public services"],
-+        answer:0
-+      },
-+      { id:40, text:"The word “Although” signals",
-+        options:["a contrast","a cause","an example","a conclusion"],
-+        answer:0
-+      },
-+      { id:41, text:"What can be inferred about dense cities?",
-+        options:["They have unlimited space","Land is limited","They avoid development projects","They cannot support parks"],
-+        answer:1
-       },
--      { id: 12, text: "What are students advised to do?",
--        options: ["Contact instructors","Delay coursework","Download materials beforehand","Avoid using the platform permanently"],
--        answer: 2
-+      { id:42, text:"Which is mentioned as a creative solution?",
-+        options:["Building taller offices","Rooftop gardens","Reducing public transportation","Closing neighborhood parks"],
-+        answer:1
-+      }
-+    ]
-+  },
-+  {
-+    title: "MODULE 2 (EASY) | Task 8B: Read in Daily Life (Notice) (Q43–Q44)",
-+    passage: `Clinic Notice
-+
-+The campus clinic will operate on reduced hours next week. Students who need routine appointments are encouraged to book online early, as walk-in availability may be limited.`,
-+    questions: [
-+      { id:43, text:"What is the main purpose of the notice?",
-+        options:["To announce reduced clinic hours","To advertise a new clinic building","To explain medical insurance","To cancel all appointments"],
-+        answer:0
-+      },
-+      { id:44, text:"What are students encouraged to do?",
-+        options:["Use only walk-in visits","Book routine appointments early online","Avoid the clinic next week","Call after arriving at the clinic"],
-+        answer:1
-       }
-     ]
-   }
--  // Add the remaining sections/questions up to 50...
- ];
- 
-+const module2_hard = [
-+  {
-+    title: "MODULE 2 (HARD) | Task 5: Complete the Words (Q23–Q32)",
-+    intro: "Choose the correct completion for each blank (each blank = 1 question).",
-+    passage: `Technological innovation has funda___entally altered communication. While effici___ency has improved, critics warn of unint___ended consequences.`,
-+    questions: [
-+      { id:23, text:"funda___entally", options:["fundamental","fundamentally","fundamentals","fundamentalism"], answer:1 },
-+      { id:24, text:"effici___ency",   options:["efficiency","efficient","efficiently","efficacy"],           answer:0 },
-+      { id:25, text:"unint___ended",   options:["unintended","uninterested","unintentioned","untended"],     answer:0 },
-+      { id:26, text:"conse___quences", options:["consequences","consequence","consequent","consensus"],      answer:0 },
-+      { id:27, text:"perce___ption",   options:["perception","perceptive","perceive","percept"],            answer:0 },
-+      { id:28, text:"rapi___dly",      options:["rapid","rapidly","rapidity","rapids"],                      answer:1 },
-+      { id:29, text:"avai___ability",  options:["available","availability","availably","availabilitys"],     answer:1 },
-+      { id:30, text:"misin___formation",options:["misinformation","misinformed","misinform","information"],   answer:0 },
-+      { id:31, text:"eval___uate",     options:["evaluate","evaluation","evaluative","evaluator"],           answer:0 },
-+      { id:32, text:"reli___ability",  options:["reliability","reliable","reliably","reliance"],             answer:0 },
-+    ]
-+  },
-+  {
-+    title: "MODULE 2 (HARD) | Task 6: Read in Daily Life (Policy Notice) (Q33–Q34)",
-+    passage: `Policy Notice
-+
-+Requests submitted without required documentation will be processed after complete submissions. To avoid delays, applicants should confirm that all supporting materials are attached before submitting.`,
-+    questions: [
-+      { id:33, text:"What is the main purpose of the notice?",
-+        options:["To explain how requests are prioritized","To announce new documentation fees","To encourage applicants to submit late","To advertise a new office service"],
-+        answer:0
-+      },
-+      { id:34, text:"What can be inferred if documentation is missing?",
-+        options:["The request will be processed first","The request may be delayed","The request will be approved automatically","The request will be ignored permanently"],
-+        answer:1
-+      }
-+    ]
-+  },
-+  {
-+    title: "MODULE 2 (HARD) | Task 7: Read in Daily Life (Message Chain) (Q35–Q36)",
-+    passage: `Messages
-+
-+A: The meeting is still at 2, right?
-+B: Yes, but not in 214 anymore—it's booked.
-+A: Where should we go then?
-+B: 310. I posted the update in the group chat.`,
-+    questions: [
-+      { id:35, text:"What happened to the meeting?",
-+        options:["It was canceled","Its location changed","Its time was moved earlier","It was postponed to next week"],
-+        answer:1
-+      },
-+      { id:36, text:"Why was the change made?",
-+        options:["The speaker was absent","The original room was unavailable","The meeting required special equipment","The group chat was deleted"],
-+        answer:1
-+      }
-+    ]
-+  },
-+  {
-+    title: "MODULE 2 (HARD) | Task 8: Read an Academic Passage (Q37–Q42)",
-+    passage: `Scientific models simplify reality to explain complex systems. While simplification allows prediction, it also introduces limitations. Models rely on assumptions that may not hold under all conditions, and small errors can accumulate across repeated calculations.
-+
-+Researchers therefore treat models as tools rather than exact representations. Continuous testing and revision can improve reliability, but uncertainty remains an inherent feature of scientific explanation, especially when systems are influenced by many interacting factors.`,
-+    questions: [
-+      { id:37, text:"What is the passage mainly about?",
-+        options:["Why scientific models are unnecessary","How models guarantee accurate predictions","The usefulness and limits of scientific models","Why prediction is impossible in science"],
-+        answer:2
-+      },
-+      { id:38, text:"Why do models simplify reality, according to the passage?",
-+        options:["To eliminate uncertainty","To allow prediction","To replace experiments","To avoid assumptions"],
-+        answer:1
-+      },
-+      { id:39, text:"What risk is associated with models?",
-+        options:["They never require assumptions","Assumptions may not always hold","They always remove errors","They prevent revision"],
-+        answer:1
-+      },
-+      { id:40, text:"The word “therefore” signals",
-+        options:["contrast","example","result","uncertainty"],
-+        answer:2
-+      },
-+      { id:41, text:"What can be inferred about uncertainty?",
-+        options:["It can be fully eliminated","It is unavoidable in complex systems","It occurs only when assumptions are correct","It decreases when models are ignored"],
-+        answer:1
-+      },
-+      { id:42, text:"Researchers treat models primarily as",
-+        options:["exact representations","tools","final answers","unnecessary abstractions"],
-+        answer:1
-+      }
-+    ]
-+  },
-+  {
-+    title: "MODULE 2 (HARD) | Task 8B: Read in Daily Life (Web Notice) (Q43–Q44)",
-+    passage: `Web Notice
-+
-+To reduce account misuse, access to certain online services may require additional verification during high-traffic periods. If prompted, users should follow the verification steps to continue.`,
-+    questions: [
-+      { id:43, text:"What is the main purpose of the notice?",
-+        options:["To explain why extra verification may occur","To announce removal of online services","To promote faster internet access","To replace passwords permanently"],
-+        answer:0
-+      },
-+      { id:44, text:"When might extra verification be required?",
-+        options:["During high-traffic periods","Only on weekends","Only after midnight","Only for new users"],
-+        answer:0
-+      }
-+    ]
-+  }
-+];
-+
-+function getBlocks(){
-+  const modeBlocks = (MODULE2_MODE === "hard") ? module2_hard : module2_easy;
-+  return [...module1, ...modeBlocks];
-+}
-+
-+// ==========================
-+// Rendering + Logic
-+// ==========================
-+
- let started = false;
- let timeLeft = 30 * 60;
- let timerId = null;
- 
--function renderQuiz() {
-+function formatTime(sec){
-+  const m = String(Math.floor(sec/60)).padStart(2,'0');
-+  const s = String(sec%60).padStart(2,'0');
-+  return `${m}:${s}`;
-+}
-+
-+function escapeHtml(str){
-+  return String(str)
-+    .replaceAll("&","&amp;")
-+    .replaceAll("<","&lt;")
-+    .replaceAll(">","&gt;")
-+    .replaceAll('"',"&quot;")
-+    .replaceAll("'","&#039;");
-+}
-+
-+function renderQuiz(disabled=true){
-   const root = document.getElementById("quiz");
-   root.innerHTML = "";
--  quizData.forEach(block => {
-+
-+  const blocks = getBlocks();
-+
-+  blocks.forEach(block => {
-     const card = document.createElement("div");
-     card.className = "card";
--    card.innerHTML = `<h3 style="margin-top:0">${block.section}</h3>
--                      <p class="muted">${block.intro || ""}</p>`;
--    if (block.passage) {
--      const pre = document.createElement("pre");
--      pre.style.whiteSpace = "pre-wrap";
--      pre.style.background = "#f7f7f7";
--      pre.style.padding = "12px";
--      pre.style.borderRadius = "10px";
-+
-+    const h = document.createElement("h3");
-+    h.style.marginTop = "0";
-+    h.textContent = block.title;
-+    card.appendChild(h);
-+
-+    if (block.intro){
-+      const p = document.createElement("p");
-+      p.className = "muted";
-+      p.textContent = block.intro;
-+      card.appendChild(p);
-+    }
-+
-+    if (block.passage){
-+      const pre = document.createElement("div");
-+      pre.className = "passage";
-       pre.textContent = block.passage;
-       card.appendChild(pre);
-     }
- 
-     block.questions.forEach(q => {
-       const qDiv = document.createElement("div");
-       qDiv.className = "q";
--      qDiv.innerHTML = `<p><b>Q${q.id}.</b> ${q.text}</p>`;
-+      qDiv.id = `qwrap-${q.id}`;
-+
-+      const title = document.createElement("h4");
-+      title.innerHTML = `Q${q.id}. ${escapeHtml(q.text)} <span id="tag-${q.id}" class="tag" style="display:none"></span>`;
-+      qDiv.appendChild(title);
-+
-       q.options.forEach((opt, idx) => {
-         const lab = document.createElement("label");
-         lab.innerHTML = `
--          <input type="radio" name="q${q.id}" value="${idx}" ${!started ? "disabled":""}>
--          ${opt}
-+          <input type="radio" name="q${q.id}" value="${idx}" ${disabled ? "disabled":""}>
-+          ${escapeHtml(opt)}
-         `;
-         qDiv.appendChild(lab);
-       });
-+
-+      const review = document.createElement("div");
-+      review.className = "review-line";
-+      review.id = `review-${q.id}`;
-+      review.style.display = "none";
-+      qDiv.appendChild(review);
-+
-       card.appendChild(qDiv);
-     });
- 
-     root.appendChild(card);
-   });
- }
- 
--function setInputsDisabled(disabled) {
-+function setInputsDisabled(disabled){
-   document.querySelectorAll('input[type="radio"]').forEach(i => i.disabled = disabled);
- }
- 
--function formatTime(sec){
--  const m = String(Math.floor(sec/60)).padStart(2,'0');
--  const s = String(sec%60).padStart(2,'0');
--  return `${m}:${s}`;
--}
--
- function startTimer(){
-   timerId = setInterval(() => {
-     timeLeft--;
-     document.getElementById("timer").textContent = formatTime(timeLeft);
--    if (timeLeft <= 0) {
-+    if (timeLeft <= 0){
-       clearInterval(timerId);
-       submitQuiz(true);
-     }
-   }, 1000);
- }
- 
-+function collectAllQuestions(){
-+  const all = [];
-+  getBlocks().forEach(b => b.questions.forEach(q => all.push(q)));
-+  return all;
-+}
-+
- function submitQuiz(auto=false){
-   if (!started) return;
-+
-   started = false;
-   clearInterval(timerId);
-+
-   setInputsDisabled(true);
-   document.getElementById("submitBtn").disabled = true;
-   document.getElementById("startBtn").disabled = false;
- 
-+  const allQ = collectAllQuestions();
-   let correct = 0;
--  let total = 0;
- 
--  quizData.forEach(block => {
--    block.questions.forEach(q => {
--      total++;
--      const chosen = document.querySelector(`input[name="q${q.id}"]:checked`);
--      const val = chosen ? Number(chosen.value) : -1;
--      if (val === q.answer) correct++;
--    });
-+  allQ.forEach(q => {
-+    const chosen = document.querySelector(`input[name="q${q.id}"]:checked`);
-+    const chosenIdx = chosen ? Number(chosen.value) : -1;
-+    const isCorrect = chosenIdx === q.answer;
-+    if (isCorrect) correct++;
-+
-+    const tag = document.getElementById(`tag-${q.id}`);
-+    tag.style.display = "inline-block";
-+    tag.className = `tag ${isCorrect ? "ok":"bad"}`;
-+    tag.textContent = isCorrect ? "Correct" : "Incorrect";
-+
-+    const review = document.getElementById(`review-${q.id}`);
-+    review.style.display = "block";
-+    const chosenText = chosenIdx >= 0 ? q.options[chosenIdx] : "(no answer)";
-+    const correctText = q.options[q.answer];
-+    review.innerHTML = `<b>Your answer:</b> ${escapeHtml(chosenText)}<br><b>Correct answer:</b> ${escapeHtml(correctText)}`;
-   });
- 
-+  const total = allQ.length;
-+
-   const res = document.getElementById("result");
--  res.classList.remove("hidden");
-+  res.style.display = "block";
-   res.innerHTML = `
-     <h3 style="margin-top:0">Result</h3>
--    <p><b>Score:</b> ${correct} / ${total}</p>
--    <p class="muted">${auto ? "Time is up — your answers were submitted automatically." : ""}</p>
-+    <div class="split">
-+      <div>
-+        <p><b>Score:</b> ${correct} / ${total}</p>
-+        <p class="muted">${auto ? "Time is up — your answers were submitted automatically." : ""}</p>
-+      </div>
-+      <div>
-+        <p class="muted" style="margin:0"><b>Review:</b> scroll down to see correct answers for each question.</p>
-+      </div>
-+    </div>
-   `;
--  window.scrollTo({top: res.offsetTop - 20, behavior: "smooth"});
-+  res.scrollIntoView({behavior:"smooth", block:"start"});
-+}
-+
-+function resetAll(){
-+  clearInterval(timerId);
-+  started = false;
-+  timeLeft = 30*60;
-+  document.getElementById("timer").textContent = formatTime(timeLeft);
-+
-+  document.querySelectorAll('input[type="radio"]').forEach(i => i.checked = false);
-+
-+  const res = document.getElementById("result");
-+  res.style.display = "none";
-+  res.innerHTML = "";
-+
-+  collectAllQuestions().forEach(q => {
-+    const tag = document.getElementById(`tag-${q.id}`);
-+    if (tag){ tag.style.display = "none"; tag.textContent = ""; tag.className = "tag"; }
-+    const review = document.getElementById(`review-${q.id}`);
-+    if (review){ review.style.display = "none"; review.innerHTML = ""; }
-+  });
-+
-+  setInputsDisabled(true);
-+  document.getElementById("startBtn").disabled = false;
-+  document.getElementById("submitBtn").disabled = true;
-+
-+  renderQuiz(true);
- }
- 
- document.getElementById("startBtn").addEventListener("click", () => {
-   if (started) return;
-   started = true;
-   timeLeft = 30*60;
-   document.getElementById("timer").textContent = formatTime(timeLeft);
-+
-   document.getElementById("startBtn").disabled = true;
-   document.getElementById("submitBtn").disabled = false;
--  renderQuiz();
-+
-+  renderQuiz(false);
-   setInputsDisabled(false);
-   startTimer();
- });
- 
- document.getElementById("submitBtn").addEventListener("click", () => submitQuiz(false));
-+document.getElementById("resetBtn").addEventListener("click", resetAll);
- 
--renderQuiz(); // initial render (disabled)
-+(function init(){
-+  document.getElementById("timer").textContent = formatTime(timeLeft);
-+  const pill = document.getElementById("modePill");
-+  pill.textContent = `Module 2: ${MODULE2_MODE.toUpperCase()}`;
-+  renderQuiz(true);
-+})();
- </script>
- 
- </body>
- </html>
- 
-EOF
-)
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TOEFL iBT Reading (2026) — ETS-aligned (Auto-switch + Review)</title>
+  <style>
+    :root{--bd:#e5e7eb;--muted:#6b7280;--ok:#10b981;--bad:#ef4444}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:980px;margin:24px auto;padding:0 16px;line-height:1.45}
+    .sticky{position:sticky;top:0;background:#fff;padding:10px 0 12px;border-bottom:1px solid var(--bd);z-index:20}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    h2{margin:0;font-size:18px}
+    .muted{color:var(--muted)}
+    .danger{color:#b00020;font-weight:800}
+    .card{border:1px solid var(--bd);border-radius:14px;padding:16px;margin:12px 0}
+    .passage{white-space:pre-wrap;background:#f8fafc;border:1px solid var(--bd);padding:12px;border-radius:12px}
+    button{padding:10px 14px;border-radius:12px;border:1px solid #111;background:#111;color:#fff;cursor:pointer}
+    button.secondary{background:#fff;color:#111;border:1px solid #9ca3af}
+    button:disabled{opacity:.5;cursor:not-allowed}
+    .q{margin:14px 0;padding:12px;border-radius:12px;border:1px solid var(--bd)}
+    .q h4{margin:0 0 10px 0;font-size:15px}
+    label{display:block;margin:6px 0;cursor:pointer}
+    .tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--bd);margin-left:8px}
+    .ok{background:#ecfdf5;border-color:var(--ok);color:#065f46}
+    .bad{background:#fef2f2;border-color:var(--bad);color:#7f1d1d}
+    .review-line{margin-top:10px;font-size:13px}
+    .review-line b{font-weight:800}
+    .split{display:grid;grid-template-columns:1fr;gap:10px}
+    @media (min-width: 820px){ .split{grid-template-columns:1fr 1fr} }
+    .pill{display:inline-block;font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--bd);background:#fff}
+    .hr{height:1px;background:var(--bd);margin:12px 0}
+    .warn{background:#fffbeb;border:1px solid #f59e0b;color:#92400e;border-radius:12px;padding:10px}
+    code{background:#f3f4f6;padding:2px 6px;border-radius:8px}
+  </style>
+</head>
+<body>
+
+<div class="sticky">
+  <div class="row">
+    <h2>TOEFL iBT Reading (2026) — ETS-aligned Mock</h2>
+    <span id="modulePill" class="pill muted">Module: not started</span>
+    <span id="modePill" class="pill muted">Module 2: auto</span>
+
+    <div style="margin-left:auto" class="row">
+      <span class="muted">Time left:</span>
+      <span id="timer" class="danger">30:00</span>
+      <button id="startBtn">Start</button>
+      <button id="nextModuleBtn" class="secondary" disabled>Next module</button>
+      <button id="submitBtn" class="secondary" disabled>Submit</button>
+      <button id="resetBtn" class="secondary">Reset</button>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <p><b>Instructions</b></p>
+  <ul>
+    <li>Time limit: <b>30 minutes</b> (both modules together)</li>
+    <li>No dictionaries or translation tools</li>
+    <li>After submission, you will see a <b>review</b> (correct answers)</li>
+  </ul>
+
+  <div class="hr"></div>
+
+  <p class="muted" style="margin:0">
+    <b>Auto-switch:</b> Module 2 is selected based on Module 1 score.
+    You can adjust the threshold in one line:
+    <code>const HARD_THRESHOLD = 15;</code>
+  </p>
+</div>
+
+<div id="quiz"></div>
+
+<div id="result" class="card" style="display:none"></div>
+
+<script>
+/**
+ * ==========================
+ * AUTO-SWITCH SETTINGS
+ * ==========================
+ * Module 1 has 22 questions (Q1–Q22).
+ * If Module 1 score >= HARD_THRESHOLD → Module 2 = HARD.
+ * Otherwise → Module 2 = EASY (still B2, just softer).
+ */
+const HARD_THRESHOLD = 15; // recommended: 14–16 depending on your group
+
+// ==========================
+// DATA (ETS-aligned, 44 items)
+// ==========================
+
+const module1 = [
+  {
+    title: "MODULE 1 — ROUTING | Task 1: Complete the Words (Q1–Q10)",
+    intro: "Choose the correct completion for each blank (each blank = 1 question).",
+    passage: `Archaeological evidence preserved in caves for thousands of years indicates that early humans engaged in activities beyond basic survival. We mi___ think that prehistoric people focused only on immediate needs. How___er, records show that artistic expression was highly valued and played a significant role in strengthening group ide___ity and social cohesion.`,
+    questions: [
+      { id: 1,  text: "mi___",          options: ["might","mind","minor","mile"],                                  answer: 0 },
+      { id: 2,  text: "How___er",       options: ["However","Howsoever","Howeverly","Howover"],                   answer: 0 },
+      { id: 3,  text: "rec___ds",       options: ["records","regards","rewards","results"],                       answer: 0 },
+      { id: 4,  text: "arti___ic",      options: ["artistic","article","artificial","articulate"],                answer: 0 },
+      { id: 5,  text: "valu___d",       options: ["value","valued","valuable","valuing"],                        answer: 1 },
+      { id: 6,  text: "signi___ant",    options: ["signify","signal","significant","signatory"],                 answer: 2 },
+      { id: 7,  text: "streng___ening", options: ["strengthen","strengthened","strengthening","strength"],       answer: 2 },
+      { id: 8,  text: "ide___ity",      options: ["identity","identical","identification","identify"],           answer: 0 },
+      { id: 9,  text: "soci___al",      options: ["society","social","socialize","socialism"],                   answer: 1 },
+      { id:10,  text: "cohe___ion",     options: ["cohesion","coercion","collision","cooperation"],              answer: 0 },
+    ]
+  },
+
+  {
+    title: "MODULE 1 — ROUTING | Task 2: Read in Daily Life (Notice) (Q11–Q12)",
+    passage: `Campus Notice
+
+Due to scheduled maintenance, access to the university learning platform will be unavailable on May 6 from 2:00 a.m. to 6:00 a.m. Students are advised to download course materials in advance to avoid disruption.`,
+    questions: [
+      { id:11, text:"What is the main purpose of the notice?",
+        options:["To promote a new platform","To announce temporary service unavailability","To explain platform features","To report system errors"],
+        answer:1
+      },
+      { id:12, text:"What are students advised to do?",
+        options:["Contact instructors","Delay coursework","Download materials beforehand","Avoid using the platform permanently"],
+        answer:2
+      }
+    ]
+  },
+
+  {
+    title: "MODULE 1 — ROUTING | Task 3: Read in Daily Life (Email) (Q13–Q14)",
+    passage: `Email
+
+Please remember that applications for the study-abroad program must be submitted by June 1. Late submissions will not be reviewed. Contact the International Office for additional guidance.`,
+    questions: [
+      { id:13, text:"Why was the email sent?",
+        options:["To advertise travel opportunities","To explain program benefits","To remind students of a deadline","To describe application procedures"],
+        answer:2
+      },
+      { id:14, text:"What happens to late applications?",
+        options:["They are reviewed later","They require extra documents","They are not reviewed","They are automatically rejected permanently"],
+        answer:2
+      }
+    ]
+  },
+
+  {
+    title: "MODULE 1 — ROUTING | Task 3B: Read in Daily Life (Text Messages) (Q15–Q16)",
+    passage: `Text Messages
+
+A: Are you still coming to the group meeting at 4?
+B: I’m running late—my bus is stuck in traffic.
+A: We’re starting with the presentation slides first.
+B: Can you send me the link so I can follow along?
+A: Sure. Also, the room changed to 3B because 2A is reserved.
+B: Thanks. I’ll join as soon as I arrive.`,
+    questions: [
+      { id:15, text:"What does B ask A to do?",
+        options:["Cancel the meeting","Wait to start the presentation","Send a link to the slides","Reserve the original room"],
+        answer:2
+      },
+      { id:16, text:"What can be inferred about the meeting?",
+        options:["It was moved to a different day","It will start later than planned","The location was changed","It has been canceled"],
+        answer:2
+      }
+    ]
+  },
+
+  {
+    title: "MODULE 1 — ROUTING | Task 4: Read an Academic Passage (Q17–Q22)",
+    passage: `Studies of attention suggest that multitasking reduces performance on complex tasks. When individuals divide attention between activities, cognitive resources are spread thin, resulting in slower processing and more errors. Although people often believe they can manage multiple tasks efficiently, research consistently shows declines in accuracy and comprehension.
+
+Experiments demonstrate that task-switching, rather than simultaneous processing, explains much of the performance loss. Each switch requires mental adjustment, which consumes time and effort. Consequently, sustained focus on a single task generally leads to better outcomes, particularly for tasks requiring reasoning or memory.`,
+    questions: [
+      { id:17, text:"What is the passage mainly about?",
+        options:["Why people prefer multitasking","How multitasking affects performance","How memory improves with practice","Why reasoning tasks require time"],
+        answer:1
+      },
+      { id:18, text:"According to the passage, performance declines because",
+        options:["tasks become simpler","cognitive resources are divided","people dislike switching tasks","memory increases too quickly"],
+        answer:1
+      },
+      { id:19, text:"The word “Consequently” is closest in meaning to",
+        options:["Similarly","As a result","In contrast","Unexpectedly"],
+        answer:1
+      },
+      { id:20, text:"What can be inferred about multitasking?",
+        options:["It is usually efficient for complex tasks","People often overestimate their ability to do it well","It improves accuracy when tasks are difficult","It eliminates the need for sustained attention"],
+        answer:1
+      },
+      { id:21, text:"In the passage, task-switching is described as",
+        options:["the main source of performance loss","a benefit of divided attention","an unrelated factor","evidence that tasks are simultaneous"],
+        answer:0
+      },
+      { id:22, text:"What strategy does the author imply is generally better for complex tasks?",
+        options:["Sustained focus on one task","Frequent switching between tasks","Doing several tasks at once","Avoiding tasks that require memory"],
+        answer:0
+      }
+    ]
+  }
+];
+
+const module2_easy = [
+  {
+    title: "MODULE 2 — EASY (B2) | Task 5: Complete the Words (Q23–Q32)",
+    intro: "Choose the correct completion for each blank (each blank = 1 question).",
+    passage: `Economic globalization has increa___ingly influenced trade. By redu___ing barriers, companies operate more effe___ively. However, critics note that bene___its may be unevenly distributed.`,
+    questions: [
+      { id:23, text:"increa___ingly", options:["increase","increasing","increasingly","incremental"], answer:2 },
+      { id:24, text:"redu___ing",     options:["reduce","reduced","reducing","reduction"],           answer:2 },
+      { id:25, text:"effe___ively",   options:["effective","effect","effectively","efficiency"],   answer:2 },
+      { id:26, text:"bene___its",     options:["benefit","beneficial","benefits","benefitted"],   answer:2 },
+      { id:27, text:"une___en",       options:["uneven","unusual","unequaled","uneasy"],          answer:0 },
+      { id:28, text:"distri___uted",  options:["distribute","distributed","distribution","distributing"], answer:1 },
+      { id:29, text:"eco___omic",     options:["economy","economic","economical","economist"],    answer:1 },
+      { id:30, text:"regi___nal",     options:["regime","region","regional","regular"],           answer:2 },
+      { id:31, text:"imba___ance",    options:["imbalance","imbalances","ambivalence","balances"], answer:0 },
+      { id:32, text:"conc___ns",      options:["concerns","concerts","consequence","concepts"],   answer:0 },
+    ]
+  },
+  {
+    title: "MODULE 2 — EASY (B2) | Task 6: Read in Daily Life (Schedule) (Q33–Q34)",
+    passage: `Workshop Schedule
+
+Workshops run May 3–5. Attendance is optional but recommended. Participants should arrive 10 minutes early for check-in.`,
+    questions: [
+      { id:33, text:"What information does the schedule provide?",
+        options:["Workshop topics","Workshop dates","Workshop grades","Workshop instructors"],
+        answer:1
+      },
+      { id:34, text:"What is stated about attendance?",
+        options:["It is required","It is optional","It is limited to seniors only","It is only for online participants"],
+        answer:1
+      }
+    ]
+  },
+  {
+    title: "MODULE 2 — EASY (B2) | Task 7: Read in Daily Life (Website Update) (Q35–Q36)",
+    passage: `Website Update
+
+For security, students must reset their account passwords every 90 days. If you have not updated your contact information, please do so to ensure you can recover access if needed.`,
+    questions: [
+      { id:35, text:"What is the main purpose of the update?",
+        options:["To promote a new app","To explain a security requirement","To announce a tuition change","To advertise student services"],
+        answer:1
+      },
+      { id:36, text:"How often must passwords be reset?",
+        options:["Every week","Every 30 days","Every 90 days","Once per year"],
+        answer:2
+      }
+    ]
+  },
+  {
+    title: "MODULE 2 — EASY (B2) | Task 8: Read an Academic Passage (Q37–Q42)",
+    passage: `Urban parks contribute to residents’ well-being by providing spaces for recreation and relaxation. Access to green areas has been linked to reduced stress and improved physical health. Studies suggest that even short visits can have positive effects on mood and attention.
+
+City planners increasingly incorporate green spaces into development projects to improve quality of life. Although land is limited in dense cities, creative solutions such as rooftop gardens and small neighborhood parks can still offer benefits.`,
+    questions: [
+      { id:37, text:"What is the passage mainly about?",
+        options:["The history of city design","The benefits of urban parks","Problems caused by urban growth","How to reduce traffic in cities"],
+        answer:1
+      },
+      { id:38, text:"According to the passage, access to green areas is linked to",
+        options:["higher housing prices","reduced stress","more traffic","lower physical health"],
+        answer:1
+      },
+      { id:39, text:"Why do planners incorporate green spaces into development?",
+        options:["To improve quality of life","To reduce education costs","To increase land availability","To replace public services"],
+        answer:0
+      },
+      { id:40, text:"The word “Although” signals",
+        options:["a contrast","a cause","an example","a conclusion"],
+        answer:0
+      },
+      { id:41, text:"What can be inferred about dense cities?",
+        options:["They have unlimited space","Land is limited","They avoid development projects","They cannot support parks"],
+        answer:1
+      },
+      { id:42, text:"Which is mentioned as a creative solution?",
+        options:["Building taller offices","Rooftop gardens","Reducing public transportation","Closing neighborhood parks"],
+        answer:1
+      }
+    ]
+  },
+  {
+    title: "MODULE 2 — EASY (B2) | Task 8B: Read in Daily Life (Notice) (Q43–Q44)",
+    passage: `Clinic Notice
+
+The campus clinic will operate on reduced hours next week. Students who need routine appointments are encouraged to book online early, as walk-in availability may be limited.`,
+    questions: [
+      { id:43, text:"What is the main purpose of the notice?",
+        options:["To announce reduced clinic hours","To advertise a new clinic building","To explain medical insurance","To cancel all appointments"],
+        answer:0
+      },
+      { id:44, text:"What are students encouraged to do?",
+        options:["Use only walk-in visits","Book routine appointments early online","Avoid the clinic next week","Call after arriving at the clinic"],
+        answer:1
+      }
+    ]
+  }
+];
+
+const module2_hard = [
+  {
+    title: "MODULE 2 — HARD (B2+/C1-entry) | Task 5: Complete the Words (Q23–Q32)",
+    intro: "Choose the correct completion for each blank (each blank = 1 question).",
+    passage: `Technological innovation has funda___entally altered communication. While effici___ency has improved, critics warn of unint___ended consequences.`,
+    questions: [
+      { id:23, text:"funda___entally", options:["fundamental","fundamentally","fundamentals","fundamentalism"], answer:1 },
+      { id:24, text:"effici___ency",   options:["efficiency","efficient","efficiently","efficacy"],           answer:0 },
+      { id:25, text:"unint___ended",   options:["unintended","uninterested","unintentioned","untended"],     answer:0 },
+      { id:26, text:"conse___quences", options:["consequences","consequence","consequent","consensus"],      answer:0 },
+      { id:27, text:"perce___ption",   options:["perception","perceptive","perceive","percept"],            answer:0 },
+      { id:28, text:"rapi___dly",      options:["rapid","rapidly","rapidity","rapids"],                      answer:1 },
+      { id:29, text:"avai___ability",  options:["available","availability","availably","availabilitys"],     answer:1 },
+      { id:30, text:"misin___formation",options:["misinformation","misinformed","misinform","information"],   answer:0 },
+      { id:31, text:"eval___uate",     options:["evaluate","evaluation","evaluative","evaluator"],           answer:0 },
+      { id:32, text:"reli___ability",  options:["reliability","reliable","reliably","reliance"],             answer:0 },
+    ]
+  },
+  {
+    title: "MODULE 2 — HARD | Task 6: Read in Daily Life (Policy Notice) (Q33–Q34)",
+    passage: `Policy Notice
+
+Requests submitted without required documentation will be processed after complete submissions. To avoid delays, applicants should confirm that all supporting materials are attached before submitting.`,
+    questions: [
+      { id:33, text:"What is the main purpose of the notice?",
+        options:["To explain how requests are prioritized","To announce new documentation fees","To encourage applicants to submit late","To advertise a new office service"],
+        answer:0
+      },
+      { id:34, text:"What can be inferred if documentation is missing?",
+        options:["The request will be processed first","The request may be delayed","The request will be approved automatically","The request will be ignored permanently"],
+        answer:1
+      }
+    ]
+  },
+  {
+    title: "MODULE 2 — HARD | Task 7: Read in Daily Life (Message Chain) (Q35–Q36)",
+    passage: `Messages
+
+A: The meeting is still at 2, right?
+B: Yes, but not in 214 anymore—it's booked.
+A: Where should we go then?
+B: 310. I posted the update in the group chat.`,
+    questions: [
+      { id:35, text:"What happened to the meeting?",
+        options:["It was canceled","Its location changed","Its time was moved earlier","It was postponed to next week"],
+        answer:1
+      },
+      { id:36, text:"Why was the change made?",
+        options:["The speaker was absent","The original room was unavailable","The meeting required special equipment","The group chat was deleted"],
+        answer:1
+      }
+    ]
+  },
+  {
+    title: "MODULE 2 — HARD | Task 8: Read an Academic Passage (Q37–Q42)",
+    passage: `Scientific models simplify reality to explain complex systems. While simplification allows prediction, it also introduces limitations. Models rely on assumptions that may not hold under all conditions, and small errors can accumulate across repeated calculations.
+
+Researchers therefore treat models as tools rather than exact representations. Continuous testing and revision can improve reliability, but uncertainty remains an inherent feature of scientific explanation, especially when systems are influenced by many interacting factors.`,
+    questions: [
+      { id:37, text:"What is the passage mainly about?",
+        options:["Why scientific models are unnecessary","How models guarantee accurate predictions","The usefulness and limits of scientific models","Why prediction is impossible in science"],
+        answer:2
+      },
+      { id:38, text:"Why do models simplify reality, according to the passage?",
+        options:["To eliminate uncertainty","To allow prediction","To replace experiments","To avoid assumptions"],
+        answer:1
+      },
+      { id:39, text:"What risk is associated with models?",
+        options:["They never require assumptions","Assumptions may not always hold","They always remove errors","They prevent revision"],
+        answer:1
+      },
+      { id:40, text:"The word “therefore” signals",
+        options:["contrast","example","result","uncertainty"],
+        answer:2
+      },
+      { id:41, text:"What can be inferred about uncertainty?",
+        options:["It can be fully eliminated","It is unavoidable in complex systems","It occurs only when assumptions are correct","It decreases when models are ignored"],
+        answer:1
+      },
+      { id:42, text:"Researchers treat models primarily as",
+        options:["exact representations","tools","final answers","unnecessary abstractions"],
+        answer:1
+      }
+    ]
+  },
+  {
+    title: "MODULE 2 — HARD | Task 8B: Read in Daily Life (Web Notice) (Q43–Q44)",
+    passage: `Web Notice
+
+To reduce account misuse, access to certain online services may require additional verification during high-traffic periods. If prompted, users should follow the verification steps to continue.`,
+    questions: [
+      { id:43, text:"What is the main purpose of the notice?",
+        options:["To explain why extra verification may occur","To announce removal of online services","To promote faster internet access","To replace passwords permanently"],
+        answer:0
+      },
+      { id:44, text:"When might extra verification be required?",
+        options:["During high-traffic periods","Only on weekends","Only after midnight","Only for new users"],
+        answer:0
+      }
+    ]
+  }
+];
+
+// ==========================
+// APP STATE
+// ==========================
+let started = false;
+let moduleIndex = 1; // 1 or 2
+let chosenMode = "auto"; // "auto" | "easy" | "hard"
+let timeLeft = 30 * 60;
+let timerId = null;
+
+// ==========================
+// HELPERS
+// ==========================
+function formatTime(sec){
+  const m = String(Math.floor(sec/60)).padStart(2,'0');
+  const s = String(sec%60).padStart(2,'0');
+  return `${m}:${s}`;
+}
+function escapeHtml(str){
+  return String(str)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+function setInputsDisabled(disabled){
+  document.querySelectorAll('input[type="radio"]').forEach(i => i.disabled = disabled);
+}
+function startTimer(){
+  timerId = setInterval(() => {
+    timeLeft--;
+    document.getElementById("timer").textContent = formatTime(timeLeft);
+    if (timeLeft <= 0){
+      clearInterval(timerId);
+      submitQuiz(true);
+    }
+  }, 1000);
+}
+function collectQuestions(blocks){
+  const all = [];
+  blocks.forEach(b => b.questions.forEach(q => all.push(q)));
+  return all;
+}
+function getModule2Blocks(mode){
+  return mode === "hard" ? module2_hard : module2_easy;
+}
+function scoreModule1(){
+  const q = collectQuestions(module1);
+  let correct = 0;
+  q.forEach(item => {
+    const chosen = document.querySelector(`input[name="q${item.id}"]:checked`);
+    const idx = chosen ? Number(chosen.value) : -1;
+    if (idx === item.answer) correct++;
+  });
+  return { correct, total: q.length };
+}
+function decideModule2Mode(){
+  const s = scoreModule1();
+  const mode = (s.correct >= HARD_THRESHOLD) ? "hard" : "easy";
+  return { mode, score: s };
+}
+function updatePills(){
+  const mP = document.getElementById("modulePill");
+  const modeP = document.getElementById("modePill");
+  mP.textContent = started ? `Module: ${moduleIndex}` : "Module: not started";
+  if (chosenMode === "auto") modeP.textContent = "Module 2: AUTO";
+  else modeP.textContent = `Module 2: ${chosenMode.toUpperCase()}`;
+}
+function renderBlocks(blocks, disabled=true){
+  const root = document.getElementById("quiz");
+  root.innerHTML = "";
+
+  blocks.forEach(block => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const h = document.createElement("h3");
+    h.style.marginTop = "0";
+    h.textContent = block.title;
+    card.appendChild(h);
+
+    if (block.intro){
+      const p = document.createElement("p");
+      p.className = "muted";
+      p.textContent = block.intro;
+      card.appendChild(p);
+    }
+
+    if (block.passage){
+      const pre = document.createElement("div");
+      pre.className = "passage";
+      pre.textContent = block.passage;
+      card.appendChild(pre);
+    }
+
+    block.questions.forEach(q => {
+      const qDiv = document.createElement("div");
+      qDiv.className = "q";
+      qDiv.id = `qwrap-${q.id}`;
+
+      const title = document.createElement("h4");
+      title.innerHTML = `Q${q.id}. ${escapeHtml(q.text)} <span id="tag-${q.id}" class="tag" style="display:none"></span>`;
+      qDiv.appendChild(title);
+
+      q.options.forEach((opt, idx) => {
+        const lab = document.createElement("label");
+        lab.innerHTML = `
+          <input type="radio" name="q${q.id}" value="${idx}" ${disabled ? "disabled":""}>
+          ${escapeHtml(opt)}
+        `;
+        qDiv.appendChild(lab);
+      });
+
+      const review = document.createElement("div");
+      review.className = "review-line";
+      review.id = `review-${q.id}`;
+      review.style.display = "none";
+      qDiv.appendChild(review);
+
+      card.appendChild(qDiv);
+    });
+
+    root.appendChild(card);
+  });
+}
+
+// ==========================
+// FLOW
+// ==========================
+function start(){
+  if (started) return;
+  started = true;
+  moduleIndex = 1;
+  chosenMode = "auto";
+
+  document.getElementById("result").style.display = "none";
+  document.getElementById("result").innerHTML = "";
+
+  timeLeft = 30*60;
+  document.getElementById("timer").textContent = formatTime(timeLeft);
+
+  document.getElementById("startBtn").disabled = true;
+  document.getElementById("nextModuleBtn").disabled = false; // enabled, but we gate it by completion check
+  document.getElementById("submitBtn").disabled = true;
+
+  renderBlocks(module1, false);
+  startTimer();
+  updatePills();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function allAnsweredInModule(blocks){
+  const q = collectQuestions(blocks);
+  return q.every(item => document.querySelector(`input[name="q${item.id}"]:checked`));
+}
+
+function goToModule2(){
+  if (!started || moduleIndex !== 1) return;
+
+  // require completion of module 1
+  if (!allAnsweredInModule(module1)){
+    alert("Please answer all Module 1 questions before moving to Module 2.");
+    return;
+  }
+
+  const decision = decideModule2Mode();
+  chosenMode = decision.mode;
+
+  moduleIndex = 2;
+
+  const blocks2 = getModule2Blocks(chosenMode);
+  renderBlocks(blocks2, false);
+
+  // Module 2 shown → now allow final submit
+  document.getElementById("submitBtn").disabled = false;
+  document.getElementById("nextModuleBtn").disabled = true;
+
+  // show a small info banner at top of quiz
+  const root = document.getElementById("quiz");
+  const banner = document.createElement("div");
+  banner.className = "warn";
+  banner.innerHTML = `<b>Auto-switch:</b> Module 1 score = <b>${decision.score.correct}/${decision.score.total}</b>. Module 2 selected: <b>${chosenMode.toUpperCase()}</b>.`;
+  root.prepend(banner);
+
+  updatePills();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function submitQuiz(auto=false){
+  if (!started) return;
+
+  // must be in module 2 to submit
+  if (moduleIndex !== 2){
+    alert("Please click “Next module” to complete Module 2 before submitting.");
+    return;
+  }
+
+  const blocks2 = getModule2Blocks(chosenMode);
+
+  // require completion of module 2
+  if (!allAnsweredInModule(blocks2)){
+    alert("Please answer all Module 2 questions before submitting.");
+    return;
+  }
+
+  started = false;
+  clearInterval(timerId);
+  setInputsDisabled(true);
+
+  document.getElementById("startBtn").disabled = false;
+  document.getElementById("nextModuleBtn").disabled = true;
+  document.getElementById("submitBtn").disabled = true;
+
+  const allBlocks = [...module1, ...blocks2];
+  const allQ = collectQuestions(allBlocks);
+
+  let correct = 0;
+
+  allQ.forEach(q => {
+    const chosen = document.querySelector(`input[name="q${q.id}"]:checked`);
+    const chosenIdx = chosen ? Number(chosen.value) : -1;
+    const isCorrect = chosenIdx === q.answer;
+    if (isCorrect) correct++;
+
+    const tag = document.getElementById(`tag-${q.id}`);
+    if (tag){
+      tag.style.display = "inline-block";
+      tag.className = `tag ${isCorrect ? "ok":"bad"}`;
+      tag.textContent = isCorrect ? "Correct" : "Incorrect";
+    }
+
+    const review = document.getElementById(`review-${q.id}`);
+    if (review){
+      review.style.display = "block";
+      const chosenText = chosenIdx >= 0 ? q.options[chosenIdx] : "(no answer)";
+      const correctText = q.options[q.answer];
+      review.innerHTML = `<b>Your answer:</b> ${escapeHtml(chosenText)}<br><b>Correct answer:</b> ${escapeHtml(correctText)}`;
+    }
+  });
+
+  const res = document.getElementById("result");
+  res.style.display = "block";
+  res.innerHTML = `
+    <h3 style="margin-top:0">Result</h3>
+    <div class="split">
+      <div>
+        <p><b>Score:</b> ${correct} / ${allQ.length}</p>
+        <p class="muted"><b>Module 2 used:</b> ${chosenMode.toUpperCase()} | <b>Threshold:</b> ${HARD_THRESHOLD}/22</p>
+        <p class="muted">${auto ? "Time is up — your answers were submitted automatically." : ""}</p>
+      </div>
+      <div>
+        <p class="muted" style="margin:0"><b>Review:</b> scroll to see correct answers for each question.</p>
+      </div>
+    </div>
+  `;
+  res.scrollIntoView({behavior:"smooth", block:"start"});
+  updatePills();
+}
+
+function resetAll(){
+  clearInterval(timerId);
+  started = false;
+  moduleIndex = 1;
+  chosenMode = "auto";
+
+  timeLeft = 30*60;
+  document.getElementById("timer").textContent = formatTime(timeLeft);
+
+  // Clear selections
+  document.querySelectorAll('input[type="radio"]').forEach(i => i.checked = false);
+
+  // Hide result
+  const res = document.getElementById("result");
+  res.style.display = "none";
+  res.innerHTML = "";
+
+  // Reset buttons
+  document.getElementById("startBtn").disabled = false;
+  document.getElementById("nextModuleBtn").disabled = true;
+  document.getElementById("submitBtn").disabled = true;
+
+  // Render Module 1 disabled view
+  renderBlocks(module1, true);
+  updatePills();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+// ==========================
+// WIRE UI
+// ==========================
+document.getElementById("startBtn").addEventListener("click", start);
+document.getElementById("nextModuleBtn").addEventListener("click", goToModule2);
+document.getElementById("submitBtn").addEventListener("click", () => submitQuiz(false));
+document.getElementById("resetBtn").addEventListener("click", resetAll);
+
+// init
+(function init(){
+  document.getElementById("timer").textContent = formatTime(timeLeft);
+  renderBlocks(module1, true);
+  updatePills();
+})();
+</script>
+
+</body>
+</html>
