@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TOEFL Reading Mock (ETS-aligned)</title>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;max-width:900px;margin:24px auto;padding:0 16px;line-height:1.4}
+    .card{border:1px solid #ddd;border-radius:12px;padding:16px;margin:12px 0}
+    .muted{color:#666}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    button{padding:10px 14px;border-radius:10px;border:1px solid #333;background:#111;color:#fff;cursor:pointer}
+    button.secondary{background:#fff;color:#111;border:1px solid #aaa}
+    .q{margin:14px 0}
+    label{display:block;margin:6px 0;cursor:pointer}
+    .sticky{position:sticky;top:0;background:#fff;padding:10px 0;border-bottom:1px solid #eee;z-index:10}
+    .danger{color:#b00020;font-weight:600}
+    .hidden{display:none}
+  </style>
+</head>
+<body>
+
+<div class="sticky">
+  <div class="row">
+    <h2 style="margin:0">TOEFL Reading Mock (ETS-aligned, 2026)</h2>
+    <div style="margin-left:auto" class="row">
+      <span class="muted">Time left:</span>
+      <span id="timer" class="danger">30:00</span>
+      <button id="startBtn">Start</button>
+      <button id="submitBtn" class="secondary" disabled>Submit</button>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <p><b>Instructions</b></p>
+  <ul>
+    <li>Time limit: 30 minutes</li>
+    <li>No dictionaries or translation tools</li>
+    <li>Answer all questions based only on the text</li>
+  </ul>
+</div>
+
+<div id="quiz"></div>
+
+<div id="result" class="card hidden"></div>
+
+<script>
+const quizData = [
+  {
+    section: "Module 1 — Complete the Words",
+    intro: "Choose the correct word completion for each blank.",
+    questions: [
+      { id: 1, text: "mi___", options: ["might","mind","minor","mile"], answer: 0 },
+      { id: 2, text: "How___er", options: ["However","Howsoever","Howeverly","Howover"], answer: 0 },
+      { id: 3, text: "rec___ds", options: ["records","regards","rewards","results"], answer: 0 },
+      // Add Q4–Q10...
+    ]
+  },
+  {
+    section: "Module 1 — Read in Daily Life",
+    intro: "Answer based on the text.",
+    passage: `Campus Notice
+
+Due to scheduled maintenance, access to the university learning platform will be unavailable on May 6 from 2:00 a.m. to 6:00 a.m.
+Students are advised to download course materials in advance to avoid disruption.`,
+    questions: [
+      { id: 11, text: "What is the main purpose of the notice?",
+        options: ["To promote a new platform","To announce temporary service unavailability","To explain platform features","To report system errors"],
+        answer: 1
+      },
+      { id: 12, text: "What are students advised to do?",
+        options: ["Contact instructors","Delay coursework","Download materials beforehand","Avoid using the platform permanently"],
+        answer: 2
+      }
+    ]
+  }
+  // Add the remaining sections/questions up to 50...
+];
+
+let started = false;
+let timeLeft = 30 * 60;
+let timerId = null;
+
+function renderQuiz() {
+  const root = document.getElementById("quiz");
+  root.innerHTML = "";
+  quizData.forEach(block => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `<h3 style="margin-top:0">${block.section}</h3>
+                      <p class="muted">${block.intro || ""}</p>`;
+    if (block.passage) {
+      const pre = document.createElement("pre");
+      pre.style.whiteSpace = "pre-wrap";
+      pre.style.background = "#f7f7f7";
+      pre.style.padding = "12px";
+      pre.style.borderRadius = "10px";
+      pre.textContent = block.passage;
+      card.appendChild(pre);
+    }
+
+    block.questions.forEach(q => {
+      const qDiv = document.createElement("div");
+      qDiv.className = "q";
+      qDiv.innerHTML = `<p><b>Q${q.id}.</b> ${q.text}</p>`;
+      q.options.forEach((opt, idx) => {
+        const lab = document.createElement("label");
+        lab.innerHTML = `
+          <input type="radio" name="q${q.id}" value="${idx}" ${!started ? "disabled":""}>
+          ${opt}
+        `;
+        qDiv.appendChild(lab);
+      });
+      card.appendChild(qDiv);
+    });
+
+    root.appendChild(card);
+  });
+}
+
+function setInputsDisabled(disabled) {
+  document.querySelectorAll('input[type="radio"]').forEach(i => i.disabled = disabled);
+}
+
+function formatTime(sec){
+  const m = String(Math.floor(sec/60)).padStart(2,'0');
+  const s = String(sec%60).padStart(2,'0');
+  return `${m}:${s}`;
+}
+
+function startTimer(){
+  timerId = setInterval(() => {
+    timeLeft--;
+    document.getElementById("timer").textContent = formatTime(timeLeft);
+    if (timeLeft <= 0) {
+      clearInterval(timerId);
+      submitQuiz(true);
+    }
+  }, 1000);
+}
+
+function submitQuiz(auto=false){
+  if (!started) return;
+  started = false;
+  clearInterval(timerId);
+  setInputsDisabled(true);
+  document.getElementById("submitBtn").disabled = true;
+  document.getElementById("startBtn").disabled = false;
+
+  let correct = 0;
+  let total = 0;
+
+  quizData.forEach(block => {
+    block.questions.forEach(q => {
+      total++;
+      const chosen = document.querySelector(`input[name="q${q.id}"]:checked`);
+      const val = chosen ? Number(chosen.value) : -1;
+      if (val === q.answer) correct++;
+    });
+  });
+
+  const res = document.getElementById("result");
+  res.classList.remove("hidden");
+  res.innerHTML = `
+    <h3 style="margin-top:0">Result</h3>
+    <p><b>Score:</b> ${correct} / ${total}</p>
+    <p class="muted">${auto ? "Time is up — your answers were submitted automatically." : ""}</p>
+  `;
+  window.scrollTo({top: res.offsetTop - 20, behavior: "smooth"});
+}
+
+document.getElementById("startBtn").addEventListener("click", () => {
+  if (started) return;
+  started = true;
+  timeLeft = 30*60;
+  document.getElementById("timer").textContent = formatTime(timeLeft);
+  document.getElementById("startBtn").disabled = true;
+  document.getElementById("submitBtn").disabled = false;
+  renderQuiz();
+  setInputsDisabled(false);
+  startTimer();
+});
+
+document.getElementById("submitBtn").addEventListener("click", () => submitQuiz(false));
+
+renderQuiz(); // initial render (disabled)
+</script>
+
+</body>
+</html>
